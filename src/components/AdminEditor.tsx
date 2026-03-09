@@ -43,6 +43,8 @@ import TwitterPlugin from '../package/plugins/TwitterPlugin';
 import FigmaPlugin from '../package/plugins/FigmaPlugin';
 import PollPlugin from '../package/plugins/PollPlugin';
 import TableCellResizer from '../package/plugins/TableCellResizer';
+import ExcalidrawPlugin from '../package/plugins/ExcalidrawPlugin';
+import CodeLineNumbersPlugin from '../package/plugins/CodeLineNumbersPlugin';
 import AutoEmbedPlugin from '../package/plugins/AutoEmbedPlugin';
 import { TableContext } from '../package/plugins/TablePlugin';
 import { ToolbarContext } from '../package/context/ToolbarContext';
@@ -146,6 +148,8 @@ function EditorInner({
         <CollapsiblePlugin />
         <PageBreakPlugin />
         <LayoutPlugin />
+        <ExcalidrawPlugin />
+        <CodeLineNumbersPlugin />
         <OnChangePlugin onChange={handleChange} ignoreSelectionChange={true} />
         {initialContent && <SetInitialContentPlugin content={initialContent} />}
         {floatingAnchorElem && (
@@ -184,7 +188,7 @@ export default function AdminEditor({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
       <div className="px-6 py-4 border-b border-slate-100">
         <h2 className="text-xl font-bold text-navy-900">Content Editor</h2>
         <p className="text-sm text-navy-500 mt-0.5">Use the rich text editor below to write your blog post</p>

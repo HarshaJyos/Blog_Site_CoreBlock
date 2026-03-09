@@ -96,19 +96,36 @@ export function InsertImageUploadedDialogBody({
 }) {
   const [src, setSrc] = useState('');
   const [altText, setAltText] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
-  const isDisabled = src === '';
+  const isDisabled = src === '' || isUploading;
 
-  const loadImage = (files: FileList | null) => {
-    const reader = new FileReader();
-    reader.onload = function () {
-      if (typeof reader.result === 'string') {
-        setSrc(reader.result);
+  const loadImage = async (files: FileList | null) => {
+    if (files !== null && files.length > 0) {
+      setIsUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append('file', files[0]);
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!res.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await res.json();
+        if (data.url) {
+          setSrc(data.url);
+        }
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Failed to upload image. Please try again.');
+      } finally {
+        setIsUploading(false);
       }
-      return '';
-    };
-    if (files !== null) {
-      reader.readAsDataURL(files[0]);
     }
   };
 
@@ -132,7 +149,7 @@ export function InsertImageUploadedDialogBody({
           data-test-id="image-modal-file-upload-btn"
           disabled={isDisabled}
           onClick={() => onClick({ altText, src })}>
-          Confirm
+          {isUploading ? 'Uploading...' : 'Confirm'}
         </Button>
       </DialogActions>
     </>

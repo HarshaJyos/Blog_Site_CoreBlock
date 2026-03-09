@@ -11,6 +11,7 @@
   "dependencies": {
     "@lexical/headless": "^0.25.0",
     "@next/bundle-analyzer": "^15.1.7",
+    "cloudinary": "^2.9.0",
     "firebase": "^12.10.0",
     "next": "^16.1.6",
     "prettier": "^3.5.2",

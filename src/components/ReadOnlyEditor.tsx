@@ -13,30 +13,12 @@ import { useEffect } from 'react';
 import PlaygroundNodes from '../package/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '../package/themes/PlaygroundEditorTheme';
 
-function SetContentPlugin({ content }: { content: string }) {
-  const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    if (content) {
-      setTimeout(() => {
-        try {
-          const editorState = editor.parseEditorState(content);
-          editor.setEditorState(editorState);
-        } catch (e) {
-          console.error('Failed to parse editor state:', e);
-        }
-      }, 0);
-    }
-  }, [editor, content]);
-
-  return null;
-}
-
 export default function ReadOnlyEditor({ content }: { content: string }) {
   const initialConfig = {
     namespace: 'CoreBlockReader',
     nodes: [...PlaygroundNodes],
     editable: false,
+    editorState: content || undefined,
     onError: (error: Error) => {
       console.error('Lexical error:', error);
     },
@@ -59,7 +41,6 @@ export default function ReadOnlyEditor({ content }: { content: string }) {
         <CheckListPlugin />
         <TablePlugin hasCellMerge={true} hasCellBackgroundColor={true} />
         <HorizontalRulePlugin />
-        <SetContentPlugin content={content} />
       </div>
     </LexicalComposer>
   );

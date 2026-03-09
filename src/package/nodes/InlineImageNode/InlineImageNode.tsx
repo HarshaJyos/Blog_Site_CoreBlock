@@ -19,14 +19,21 @@ import type {
   SerializedLexicalNode,
   Spread,
 } from 'lexical';
-import type {JSX} from 'react';
+import type { JSX } from 'react';
 
 import {
   $applyNodeReplacement,
   createEditor,
   DecoratorNode,
   isHTMLElement,
+  ParagraphNode,
+  TextNode,
+  LineBreakNode,
 } from 'lexical';
+import { LinkNode } from '@lexical/link';
+import { HashtagNode } from '@lexical/hashtag';
+import { EmojiNode } from '../EmojiNode';
+import { KeywordNode } from '../KeywordNode';
 import * as React from 'react';
 
 const InlineImageComponent = React.lazy(() => import('./InlineImageComponent'));
@@ -52,9 +59,9 @@ export interface UpdateInlineImagePayload {
 
 function $convertInlineImageElement(domNode: Node): null | DOMConversionOutput {
   if (isHTMLElement(domNode) && domNode.nodeName === 'IMG') {
-    const {alt: altText, src, width, height} = domNode as HTMLImageElement;
-    const node = $createInlineImageNode({altText, height, src, width});
-    return {node};
+    const { alt: altText, src, width, height } = domNode as HTMLImageElement;
+    const node = $createInlineImageNode({ altText, height, src, width });
+    return { node };
   }
   return null;
 }
@@ -101,7 +108,7 @@ export class InlineImageNode extends DecoratorNode<JSX.Element> {
   static importJSON(
     serializedNode: SerializedInlineImageNode,
   ): InlineImageNode {
-    const {altText, height, width, src, showCaption, position} = serializedNode;
+    const { altText, height, width, src, showCaption, position } = serializedNode;
     return $createInlineImageNode({
       altText,
       height,
@@ -115,12 +122,14 @@ export class InlineImageNode extends DecoratorNode<JSX.Element> {
   updateFromJSON(
     serializedNode: LexicalUpdateJSON<SerializedInlineImageNode>,
   ): this {
-    const {caption} = serializedNode;
+    const { caption } = serializedNode;
     const node = super.updateFromJSON(serializedNode);
     const nestedEditor = node.__caption;
-    const editorState = nestedEditor.parseEditorState(caption.editorState);
-    if (!editorState.isEmpty()) {
-      nestedEditor.setEditorState(editorState);
+    if (caption && caption.editorState) {
+      const editorState = nestedEditor.parseEditorState(caption.editorState);
+      if (!editorState.isEmpty()) {
+        nestedEditor.setEditorState(editorState);
+      }
     }
     return node;
   }
@@ -150,7 +159,17 @@ export class InlineImageNode extends DecoratorNode<JSX.Element> {
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
     this.__showCaption = showCaption || false;
-    this.__caption = caption || createEditor();
+    this.__caption = caption || createEditor({
+      nodes: [
+        ParagraphNode,
+        TextNode,
+        LineBreakNode,
+        LinkNode,
+        HashtagNode,
+        EmojiNode,
+        KeywordNode,
+      ],
+    });
     this.__position = position;
   }
 
@@ -160,7 +179,7 @@ export class InlineImageNode extends DecoratorNode<JSX.Element> {
     element.setAttribute('alt', this.__altText);
     element.setAttribute('width', this.__width.toString());
     element.setAttribute('height', this.__height.toString());
-    return {element};
+    return { element };
   }
 
   exportJSON(): SerializedInlineImageNode {
@@ -218,7 +237,7 @@ export class InlineImageNode extends DecoratorNode<JSX.Element> {
 
   update(payload: UpdateInlineImagePayload): void {
     const writable = this.getWritable();
-    const {altText, showCaption, position} = payload;
+    const { altText, showCaption, position } = payload;
     if (altText !== undefined) {
       writable.__altText = altText;
     }

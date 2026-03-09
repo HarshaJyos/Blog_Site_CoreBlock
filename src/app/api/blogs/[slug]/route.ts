@@ -8,7 +8,49 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  setDoc,
+  getDoc,
 } from 'firebase/firestore';
+
+// Helper to sync polls from blog content to firestore
+async function syncPolls(content: string) {
+  try {
+    const contentJson = JSON.parse(content);
+    const polls: any[] = [];
+
+    const findPolls = (nodes: any[]) => {
+      for (const node of nodes) {
+        if (node.type === 'poll') {
+          polls.push(node);
+        }
+        if (node.children) findPolls(node.children);
+      }
+    };
+
+    if (contentJson.root && contentJson.root.children) {
+      findPolls(contentJson.root.children);
+    }
+
+    // Upsert each poll found
+    for (const poll of polls) {
+      const pollRef = doc(db, 'polls', poll.pollId);
+      const pollSnap = await getDoc(pollRef);
+
+      if (!pollSnap.exists()) {
+        console.log('SYNC: Creating missing poll in Firestore:', poll.pollId);
+        await setDoc(pollRef, {
+          question: poll.question,
+          options: {}, // Results are stored as { [optionUid]: count }
+          totalVotes: 0,
+          createdAt: poll.createdAt || Date.now(),
+          lastSyncAt: Date.now(),
+        });
+      }
+    }
+  } catch (e) {
+    console.error('Error syncing polls:', e);
+  }
+}
 
 // Helper: find blog document by slug
 async function findBlogBySlug(slug: string) {
@@ -57,10 +99,23 @@ export async function PUT(
 
     const body = await request.json();
 
+    // Sanitize body: remove undefined values which Firestore rejects
+    const sanitizedBody = Object.keys(body).reduce((acc: any, key) => {
+      if (body[key] !== undefined) {
+        acc[key] = body[key];
+      }
+      return acc;
+    }, {});
+
     const updateData: any = {
-      ...body,
+      ...sanitizedBody,
       updatedAt: Date.now(),
     };
+
+    console.log('UPDATING BLOG:', slug);
+    if (sanitizedBody.content) {
+      await syncPolls(sanitizedBody.content);
+    }
 
     // If publishing for the first time
     if (body.status === 'published' && !(blog.data as any).publishedAt) {

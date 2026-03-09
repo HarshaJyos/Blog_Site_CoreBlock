@@ -9,10 +9,52 @@ import {
   orderBy,
   limit,
   startAfter,
-  getDoc,
   doc,
+  setDoc,
+  getDoc,
 } from 'firebase/firestore';
 import type { BlogPost } from '@/types/blog';
+
+// Helper to sync polls from blog content to firestore
+async function syncPolls(content: string) {
+  try {
+    const contentJson = JSON.parse(content);
+    const polls: any[] = [];
+
+    const findPolls = (nodes: any[]) => {
+      for (const node of nodes) {
+        if (node.type === 'poll') {
+          polls.push(node);
+        }
+        if (node.children) findPolls(node.children);
+      }
+    };
+
+    if (contentJson.root && contentJson.root.children) {
+      findPolls(contentJson.root.children);
+    }
+
+    // Upsert each poll found
+    for (const poll of polls) {
+      const pollRef = doc(db, 'polls', poll.pollId);
+      const pollSnap = await getDoc(pollRef);
+
+      if (!pollSnap.exists()) {
+        console.log('SYNC: Creating missing poll in Firestore:', poll.pollId);
+        await setDoc(pollRef, {
+          question: poll.question,
+          options: {}, // Results are stored as { [optionUid]: count }
+          totalVotes: 0,
+          createdAt: poll.createdAt || Date.now(),
+          lastSyncAt: Date.now(),
+        });
+      }
+    }
+  } catch (e) {
+    console.error('Error syncing polls:', e);
+  }
+}
+
 
 // GET /api/blogs — list blog posts
 export async function GET(request: NextRequest) {
@@ -105,7 +147,44 @@ export async function POST(request: NextRequest) {
       publishedAt: body.status === 'published' ? Date.now() : null,
     };
 
+    console.log('CREATING NEW BLOG:', slug);
+    if (blogData.content) {
+      try {
+        const contentJson = JSON.parse(blogData.content);
+        let hasImageWithCaption = false;
+
+        const checkNodes = (nodes: any[]) => {
+          for (const node of nodes) {
+            if (node.type === 'image' && node.caption) {
+              hasImageWithCaption = true;
+              console.log('FOUND IMAGE WITH CAPTION IN NEW BLOG PAYLOAD:', {
+                src: node.src,
+                captionState: !!node.caption.editorState
+              });
+            }
+            if (node.children) checkNodes(node.children);
+          }
+        };
+
+        if (contentJson.root && contentJson.root.children) {
+          checkNodes(contentJson.root.children);
+        }
+
+        if (!hasImageWithCaption) {
+          console.log('NO IMAGE WITH CAPTION FOUND IN NEW BLOG PAYLOAD');
+        }
+      } catch (e) {
+        console.error('Failed to parse content JSON for debug:', e);
+      }
+    }
+
     const docRef = await addDoc(collection(db, 'blogs'), blogData);
+
+    // Sync polls after saving blog
+    if (blogData.content) {
+      await syncPolls(blogData.content);
+    }
+
 
     return NextResponse.json(
       { id: docRef.id, slug, ...blogData },

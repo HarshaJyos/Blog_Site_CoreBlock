@@ -1,20 +1,12 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-import type {Option, Options, PollNode} from './PollNode';
-import type {JSX} from 'react';
+import type { Option, Options, PollNode } from './PollNode';
+import type { JSX } from 'react';
 
 import './PollNode.css';
 
-import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {useLexicalNodeSelection} from '@lexical/react/useLexicalNodeSelection';
-import {mergeRegister} from '@lexical/utils';
+import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
+import { mergeRegister } from '@lexical/utils';
 import {
   $getNodeByKey,
   $getSelection,
@@ -27,11 +19,11 @@ import {
   NodeKey,
 } from 'lexical';
 import * as React from 'react';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import Button from '../ui/Button';
 import joinClasses from '../utils/joinClasses';
-import {$isPollNode, createPollOption} from './PollNode';
+import { $isPollNode, createPollOption } from './PollNode';
 
 function getTotalVotes(options: Options): number {
   return options.reduce((totalVotes, next) => {
@@ -45,6 +37,10 @@ function PollOptionComponent({
   options,
   totalVotes,
   withPollNode,
+  editable,
+  onVote,
+  votedUid,
+  serverVotes,
 }: {
   index: number;
   option: Option;
@@ -54,13 +50,17 @@ function PollOptionComponent({
     cb: (pollNode: PollNode) => void,
     onSelect?: () => void,
   ) => void;
+  editable: boolean;
+  onVote: (uid: string) => void;
+  votedUid: string | null;
+  serverVotes: number;
 }): JSX.Element {
-  const {clientID} = useCollaborationContext();
+  const { clientID } = useCollaborationContext();
   const checkboxRef = useRef(null);
   const votesArray = option.votes;
   const checkedIndex = votesArray.indexOf(clientID);
-  const checked = checkedIndex !== -1;
-  const votes = votesArray.length;
+  const checked = checkedIndex !== -1 || votedUid === option.uid;
+  const votes = serverVotes || votesArray.length;
   const text = option.text;
 
   return (
@@ -74,10 +74,15 @@ function PollOptionComponent({
           ref={checkboxRef}
           className="PollNode__optionCheckbox"
           type="checkbox"
+          disabled={!editable && votedUid !== null}
           onChange={(e) => {
-            withPollNode((node) => {
-              node.toggleVote(option, clientID);
-            });
+            if (editable) {
+              withPollNode((node) => {
+                node.toggleVote(option, clientID);
+              });
+            } else {
+              onVote(option.uid);
+            }
           }}
           checked={checked}
         />
@@ -85,7 +90,7 @@ function PollOptionComponent({
       <div className="PollNode__optionInputWrapper">
         <div
           className="PollNode__optionInputVotes"
-          style={{width: `${votes === 0 ? 0 : (votes / totalVotes) * 100}%`}}
+          style={{ width: `${votes === 0 ? 0 : (votes / totalVotes) * 100}%` }}
         />
         <span className="PollNode__optionInputVotesCount">
           {votes > 0 && (votes === 1 ? '1 vote' : `${votes} votes`)}
@@ -93,8 +98,10 @@ function PollOptionComponent({
         <input
           className="PollNode__optionInput"
           type="text"
+          readOnly={!editable}
           value={text}
           onChange={(e) => {
+            if (!editable) return;
             const target = e.target;
             const value = target.value;
             const selectionStart = target.selectionStart;
@@ -112,19 +119,21 @@ function PollOptionComponent({
           placeholder={`Option ${index + 1}`}
         />
       </div>
-      <button
-        disabled={options.length < 3}
-        className={joinClasses(
-          'PollNode__optionDelete',
-          options.length < 3 && 'PollNode__optionDeleteDisabled',
-        )}
-        aria-label="Remove"
-        onClick={() => {
-          withPollNode((node) => {
-            node.deleteOption(option);
-          });
-        }}
-      />
+      {editable && (
+        <button
+          disabled={options.length < 3}
+          className={joinClasses(
+            'PollNode__optionDelete',
+            options.length < 3 && 'PollNode__optionDeleteDisabled',
+          )}
+          aria-label="Remove"
+          onClick={() => {
+            withPollNode((node) => {
+              node.deleteOption(option);
+            });
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -132,14 +141,99 @@ function PollOptionComponent({
 export default function PollComponent({
   question,
   options,
+  pollId,
+  createdAt,
   nodeKey,
 }: {
+  createdAt: number;
   nodeKey: NodeKey;
   options: Options;
+  pollId: string;
   question: string;
 }): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const totalVotes = useMemo(() => getTotalVotes(options), [options]);
+  const editable = editor.isEditable();
+
+  const [pollResults, setPollResults] = useState<{
+    totalVotes: number;
+    options: Record<string, number>;
+  } | null>(null);
+
+  const [votedUid, setVotedUid] = useState<string | null>(null);
+  const [isExpired, setIsExpired] = useState(false);
+
+  // Load results and user vote status
+  useEffect(() => {
+    // Check local storage for previous vote
+    const storageKey = `poll_voted_${pollId}`;
+    const storedVote = localStorage.getItem(storageKey);
+    if (storedVote) {
+      try {
+        const { uid, timestamp } = JSON.parse(storedVote);
+        const now = Date.now();
+        // Only set if within 24 hours
+        if (now - timestamp < 24 * 60 * 60 * 1000) {
+          setVotedUid(uid);
+        } else {
+          localStorage.removeItem(storageKey);
+        }
+      } catch (e) {
+        localStorage.removeItem(storageKey);
+      }
+    }
+
+    // Check expiration
+    const now = Date.now();
+    if (now - createdAt > 24 * 60 * 60 * 1000) {
+      setIsExpired(true);
+    }
+
+    // Fetch live results
+    if (!editable) {
+      fetch(`/api/polls/${pollId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.options) {
+            setPollResults(data);
+          }
+        })
+        .catch((err) => console.error('Failed to fetch poll results:', err));
+    }
+  }, [pollId, editable, createdAt]);
+
+  const totalVotes = useMemo(() => {
+    if (pollResults) return pollResults.totalVotes;
+    return getTotalVotes(options);
+  }, [options, pollResults]);
+
+  const handleVote = async (optionUid: string) => {
+    if (votedUid || isExpired) return;
+
+    try {
+      const response = await fetch(`/api/polls/${pollId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'vote', optionUid, createdAt }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPollResults(data);
+        setVotedUid(optionUid);
+
+        // Store in local storage
+        localStorage.setItem(
+          `poll_voted_${pollId}`,
+          JSON.stringify({ uid: optionUid, timestamp: Date.now() })
+        );
+      } else if (response.status === 403) {
+        setIsExpired(true);
+      }
+    } catch (err) {
+      console.error('Failed to submit vote:', err);
+    }
+  };
+
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [selection, setSelection] = useState<BaseSelection | null>(null);
@@ -164,7 +258,7 @@ export default function PollComponent({
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerUpdateListener(({editorState}) => {
+      editor.registerUpdateListener(({ editorState }) => {
         setSelection(editorState.read(() => $getSelection()));
       }),
       editor.registerCommand<MouseEvent>(
@@ -208,7 +302,7 @@ export default function PollComponent({
           cb(node);
         }
       },
-      {onUpdate},
+      { onUpdate },
     );
   };
 
@@ -225,7 +319,14 @@ export default function PollComponent({
       className={`PollNode__container ${isFocused ? 'focused' : ''}`}
       ref={ref}>
       <div className="PollNode__inner">
-        <h2 className="PollNode__heading">{question}</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="PollNode__heading">{question}</h2>
+          {isExpired && (
+            <span className="text-xs font-bold text-red-500 uppercase tracking-wider px-2 py-1 bg-red-50 rounded">
+              Closed
+            </span>
+          )}
+        </div>
         {options.map((option, index) => {
           const key = option.uid;
           return (
@@ -236,13 +337,23 @@ export default function PollComponent({
               index={index}
               options={options}
               totalVotes={totalVotes}
+              editable={editable}
+              onVote={handleVote}
+              votedUid={votedUid}
+              serverVotes={pollResults?.options[option.uid] || 0}
             />
           );
         })}
         <div className="PollNode__footer">
-          <Button onClick={addOption} small={true}>
-            Add Option
-          </Button>
+          {editable ? (
+            <Button onClick={addOption} small={true}>
+              Add Option
+            </Button>
+          ) : (
+            <div className="text-xs text-zinc-500 italic">
+              {totalVotes} total votes • {isExpired ? 'Poll ended' : 'Voting ends after 24 hours'}
+            </div>
+          )}
         </div>
       </div>
     </div>
