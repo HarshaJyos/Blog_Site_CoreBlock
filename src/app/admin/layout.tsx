@@ -43,18 +43,18 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-navy-950 text-white flex flex-col z-40">
+      <aside className="fixed left-0 top-0 h-full w-64 bg-zinc-950 text-white flex flex-col z-40">
         {/* Logo */}
-        <div className="px-6 py-5 border-b border-navy-800">
+        <div className="px-6 py-5 border-b border-zinc-800">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-navy-400 to-accent-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
               <span className="text-white font-black text-base">C</span>
             </div>
             <span className="text-lg font-bold">
-              Core<span className="text-navy-300">Block</span>
+              Core<span className="text-zinc-400">Block</span>
             </span>
           </Link>
-          <p className="text-xs text-navy-500 mt-1">Admin Panel</p>
+          <p className="text-xs text-zinc-500 mt-1">Admin Panel</p>
         </div>
 
         {/* Nav Links */}
@@ -65,11 +65,10 @@ export default function AdminLayout({
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-smooth ${
-                  isActive
-                    ? 'bg-navy-700/60 text-white shadow-sm'
-                    : 'text-navy-300 hover:text-white hover:bg-navy-800/50'
-                }`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-smooth ${isActive
+                    ? 'bg-zinc-800/80 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                  }`}
               >
                 {link.icon}
                 {link.label}
@@ -79,10 +78,10 @@ export default function AdminLayout({
         </nav>
 
         {/* Footer */}
-        <div className="px-4 py-4 border-t border-navy-800">
+        <div className="px-4 py-4 border-t border-zinc-800">
           <Link
             href="/"
-            className="flex items-center gap-2 text-navy-400 hover:text-white text-sm transition-colors"
+            className="flex items-center gap-2 text-zinc-400 hover:text-white text-sm transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -95,9 +94,9 @@ export default function AdminLayout({
       {/* Main Content */}
       <div className="flex-1 ml-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-8 py-4">
+        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-zinc-200 px-8 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-navy-900">
+            <h1 className="text-lg font-semibold text-zinc-900">
               {pathname === '/admin' && 'Dashboard'}
               {pathname === '/admin/blogs' && 'All Posts'}
               {pathname === '/admin/blogs/new' && 'Create New Post'}
@@ -106,7 +105,7 @@ export default function AdminLayout({
             <div className="flex items-center gap-3">
               <Link
                 href="/admin/blogs/new"
-                className="px-4 py-2 bg-navy-700 text-white text-sm font-medium rounded-lg hover:bg-navy-800 transition-smooth shadow-sm"
+                className="px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-800 transition-smooth shadow-sm"
               >
                 + New Post
               </Link>

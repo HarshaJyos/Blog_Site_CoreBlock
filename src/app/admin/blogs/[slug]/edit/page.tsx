@@ -187,14 +187,14 @@ export default function EditBlogPage() {
                 <div
                   className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-smooth ${
                     index === currentStep
-                      ? 'bg-navy-700 text-white shadow-md'
+                      ? 'bg-zinc-900 text-white shadow-md'
                       : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                   }`}
                 >
                   {index + 1}
                 </div>
                 <span className={`text-sm font-medium hidden sm:block ${
-                  index === currentStep ? 'text-navy-900' : 'text-slate-400'
+                  index === currentStep ? 'text-zinc-900' : 'text-slate-400'
                 }`}>
                   {step}
                 </span>
@@ -214,50 +214,50 @@ export default function EditBlogPage() {
       {/* Step 1: Blog Details */}
       {currentStep === 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 animate-scale-in">
-          <h2 className="text-xl font-bold text-navy-900 mb-6">Blog Details</h2>
+          <h2 className="text-xl font-bold text-zinc-900 mb-6">Blog Details</h2>
           <div className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Title</label>
-              <input type="text" value={formData.title} onChange={(e) => updateTitle(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth" />
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Title</label>
+              <input type="text" value={formData.title} onChange={(e) => updateTitle(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">URL Slug</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">URL Slug</label>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-navy-400">/blog/</span>
-                <input type="text" value={formData.slug} onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))} className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth" />
+                <span className="text-sm text-zinc-400">/blog/</span>
+                <input type="text" value={formData.slug} onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))} className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Excerpt</label>
-              <textarea value={formData.excerpt} onChange={(e) => setFormData((p) => ({ ...p, excerpt: e.target.value }))} rows={3} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth resize-none" />
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Excerpt</label>
+              <textarea value={formData.excerpt} onChange={(e) => setFormData((p) => ({ ...p, excerpt: e.target.value }))} rows={3} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth resize-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Cover Image URL</label>
-              <input type="url" value={formData.coverImage} onChange={(e) => setFormData((p) => ({ ...p, coverImage: e.target.value }))} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth" />
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Cover Image URL</label>
+              <input type="url" value={formData.coverImage} onChange={(e) => setFormData((p) => ({ ...p, coverImage: e.target.value }))} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth" />
               {formData.coverImage && <img src={formData.coverImage} alt="Cover preview" className="mt-3 w-full h-48 object-cover rounded-xl border border-slate-200" />}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-navy-700 mb-1.5">Author</label>
-                <input type="text" value={formData.author} onChange={(e) => setFormData((p) => ({ ...p, author: e.target.value }))} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth" />
+                <label className="block text-sm font-medium text-zinc-700 mb-1.5">Author</label>
+                <input type="text" value={formData.author} onChange={(e) => setFormData((p) => ({ ...p, author: e.target.value }))} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-navy-700 mb-1.5">Category</label>
-                <select value={formData.category} onChange={(e) => setFormData((p) => ({ ...p, category: e.target.value }))} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth bg-white">
+                <label className="block text-sm font-medium text-zinc-700 mb-1.5">Category</label>
+                <select value={formData.category} onChange={(e) => setFormData((p) => ({ ...p, category: e.target.value }))} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth bg-white">
                   {BLOG_CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Tags</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Tags</label>
               <div className="flex gap-2 mb-2">
-                <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())} placeholder="Add a tag..." className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 placeholder-slate-300 transition-smooth text-sm" />
-                <button type="button" onClick={addTag} className="px-4 py-2.5 bg-navy-50 text-navy-700 rounded-xl font-medium text-sm hover:bg-navy-100 transition-smooth">Add</button>
+                <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())} placeholder="Add a tag..." className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 placeholder-slate-300 transition-smooth text-sm" />
+                <button type="button" onClick={addTag} className="px-4 py-2.5 bg-zinc-50 text-zinc-700 rounded-xl font-medium text-sm hover:bg-zinc-100 transition-smooth">Add</button>
               </div>
               {formData.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {formData.tags.map((tag) => (
-                    <span key={tag} className="tag-chip">{tag}<button onClick={() => removeTag(tag)} className="ml-1.5 text-navy-400 hover:text-red-500">×</button></span>
+                    <span key={tag} className="tag-chip">{tag}<button onClick={() => removeTag(tag)} className="ml-1.5 text-zinc-400 hover:text-red-500">×</button></span>
                   ))}
                 </div>
               )}
@@ -276,43 +276,43 @@ export default function EditBlogPage() {
       {/* Step 3: SEO Settings */}
       {currentStep === 2 && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 animate-scale-in">
-          <h2 className="text-xl font-bold text-navy-900 mb-2">SEO Settings</h2>
-          <p className="text-sm text-navy-500 mb-6">Optimize your post for search engines</p>
+          <h2 className="text-xl font-bold text-zinc-900 mb-2">SEO Settings</h2>
+          <p className="text-sm text-zinc-500 mb-6">Optimize your post for search engines</p>
           <div className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Meta Title</label>
-              <input type="text" value={formData.seo.metaTitle} onChange={(e) => setFormData((p) => ({ ...p, seo: { ...p.seo, metaTitle: e.target.value } }))} placeholder={formData.title} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth" />
-              <p className="text-xs text-navy-400 mt-1">{(formData.seo.metaTitle || formData.title).length}/60 characters</p>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Meta Title</label>
+              <input type="text" value={formData.seo.metaTitle} onChange={(e) => setFormData((p) => ({ ...p, seo: { ...p.seo, metaTitle: e.target.value } }))} placeholder={formData.title} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth" />
+              <p className="text-xs text-zinc-400 mt-1">{(formData.seo.metaTitle || formData.title).length}/60 characters</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Meta Description</label>
-              <textarea value={formData.seo.metaDescription} onChange={(e) => setFormData((p) => ({ ...p, seo: { ...p.seo, metaDescription: e.target.value } }))} placeholder={formData.excerpt} rows={3} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth resize-none" />
-              <p className="text-xs text-navy-400 mt-1">{(formData.seo.metaDescription || formData.excerpt).length}/160 characters</p>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Meta Description</label>
+              <textarea value={formData.seo.metaDescription} onChange={(e) => setFormData((p) => ({ ...p, seo: { ...p.seo, metaDescription: e.target.value } }))} placeholder={formData.excerpt} rows={3} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth resize-none" />
+              <p className="text-xs text-zinc-400 mt-1">{(formData.seo.metaDescription || formData.excerpt).length}/160 characters</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Canonical URL</label>
-              <input type="url" value={formData.seo.canonicalUrl} onChange={(e) => setFormData((p) => ({ ...p, seo: { ...p.seo, canonicalUrl: e.target.value } }))} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth" />
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Canonical URL</label>
+              <input type="url" value={formData.seo.canonicalUrl} onChange={(e) => setFormData((p) => ({ ...p, seo: { ...p.seo, canonicalUrl: e.target.value } }))} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">OG Image URL</label>
-              <input type="url" value={formData.seo.ogImage} onChange={(e) => setFormData((p) => ({ ...p, seo: { ...p.seo, ogImage: e.target.value } }))} placeholder={formData.coverImage} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 transition-smooth" />
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">OG Image URL</label>
+              <input type="url" value={formData.seo.ogImage} onChange={(e) => setFormData((p) => ({ ...p, seo: { ...p.seo, ogImage: e.target.value } }))} placeholder={formData.coverImage} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">SEO Keywords</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">SEO Keywords</label>
               <div className="flex gap-2 mb-2">
-                <input type="text" value={keywordInput} onChange={(e) => setKeywordInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())} placeholder="Add a keyword..." className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 text-navy-800 placeholder-slate-300 transition-smooth text-sm" />
-                <button type="button" onClick={addKeyword} className="px-4 py-2.5 bg-navy-50 text-navy-700 rounded-xl font-medium text-sm hover:bg-navy-100 transition-smooth">Add</button>
+                <input type="text" value={keywordInput} onChange={(e) => setKeywordInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())} placeholder="Add a keyword..." className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 placeholder-slate-300 transition-smooth text-sm" />
+                <button type="button" onClick={addKeyword} className="px-4 py-2.5 bg-zinc-50 text-zinc-700 rounded-xl font-medium text-sm hover:bg-zinc-100 transition-smooth">Add</button>
               </div>
               {formData.seo.keywords.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {formData.seo.keywords.map((kw) => (
-                    <span key={kw} className="tag-chip">{kw}<button onClick={() => removeKeyword(kw)} className="ml-1.5 text-navy-400 hover:text-red-500">×</button></span>
+                    <span key={kw} className="tag-chip">{kw}<button onClick={() => removeKeyword(kw)} className="ml-1.5 text-zinc-400 hover:text-red-500">×</button></span>
                   ))}
                 </div>
               )}
             </div>
             <div className="bg-slate-50 rounded-xl p-5 border border-slate-200 mt-6">
-              <h3 className="text-sm font-semibold text-navy-700 mb-3">Search Preview</h3>
+              <h3 className="text-sm font-semibold text-zinc-700 mb-3">Search Preview</h3>
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <p className="text-blue-700 text-lg font-medium truncate">{formData.seo.metaTitle || formData.title || 'Page Title'}</p>
                 <p className="text-green-700 text-sm truncate mt-0.5">coreblock.com/blog/{formData.slug || 'post-url'}</p>
@@ -338,14 +338,14 @@ export default function EditBlogPage() {
               <button onClick={() => handleSave('draft')} disabled={saving} className="px-6 py-2.5 bg-slate-100 text-slate-700 font-medium rounded-xl hover:bg-slate-200 transition-smooth disabled:opacity-50">
                 {saving ? 'Saving...' : 'Save as Draft'}
               </button>
-              <button onClick={() => handleSave('published')} disabled={saving} className="px-6 py-2.5 bg-navy-700 text-white font-semibold rounded-xl hover:bg-navy-800 transition-smooth shadow-sm disabled:opacity-50">
+              <button onClick={() => handleSave('published')} disabled={saving} className="px-6 py-2.5 bg-zinc-900 text-white font-semibold rounded-xl hover:bg-zinc-800 transition-smooth shadow-sm disabled:opacity-50">
                 {saving ? 'Publishing...' : 'Publish'}
               </button>
             </>
           ) : (
             <button
               onClick={() => setCurrentStep((prev) => Math.min(STEPS.length - 1, prev + 1))}
-              className="px-6 py-2.5 bg-navy-700 text-white font-semibold rounded-xl hover:bg-navy-800 transition-smooth shadow-sm"
+              className="px-6 py-2.5 bg-zinc-900 text-white font-semibold rounded-xl hover:bg-zinc-800 transition-smooth shadow-sm"
             >
               Next →
             </button>

@@ -36,17 +36,21 @@ export default function BlogListingPage() {
   });
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in bg-white min-h-screen">
       {/* Header */}
-      <section className="bg-gradient-to-b from-navy-50 to-white pt-16 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-navy-950 mb-2">Blog</h1>
-          <p className="text-navy-500 text-lg">Explore articles on technology, design, and development</p>
+      <section className="pt-24 pb-12 md:pt-32 md:pb-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-zinc-200/50">
+        <div className="max-w-3xl">
+          <h1 className="text-4xl md:text-5xl font-semibold text-zinc-950 tracking-tight leading-tight mb-6 animate-slide-up">
+            Journal Archive
+          </h1>
+          <p className="text-lg text-zinc-500 font-normal leading-relaxed mb-10 animate-slide-up" style={{ animationDelay: '100ms' }}>
+            Thoughts, tutorials, and insights on software engineering and design.
+          </p>
 
-          {/* Search */}
-          <div className="mt-8 max-w-xl">
+          {/* Search & Filter Controls */}
+          <div className="flex flex-col gap-6 animate-slide-up" style={{ animationDelay: '200ms' }}>
             <div className="relative">
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
@@ -54,113 +58,105 @@ export default function BlogListingPage() {
                 placeholder="Search articles..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-xl border border-navy-200 bg-white focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-navy-300 transition-smooth"
+                className="w-full pl-11 pr-4 py-3 bg-zinc-50 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:border-transparent text-zinc-900 placeholder-zinc-400 text-sm transition-shadow"
               />
             </div>
-          </div>
 
-          {/* Category filters */}
-          <div className="mt-6 flex flex-wrap gap-2">
-            <button
-              onClick={() => setActiveCategory('All')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-smooth ${
-                activeCategory === 'All'
-                  ? 'bg-navy-700 text-white shadow-sm'
-                  : 'bg-white text-navy-600 hover:bg-navy-50 border border-navy-200'
-              }`}
-            >
-              All
-            </button>
-            {BLOG_CATEGORIES.map((cat) => (
+            <div className="flex items-center gap-6 overflow-x-auto pb-2 md:pb-0 scrollbar-hide border-b border-zinc-100">
               <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-smooth ${
-                  activeCategory === cat
-                    ? 'bg-navy-700 text-white shadow-sm'
-                    : 'bg-white text-navy-600 hover:bg-navy-50 border border-navy-200'
-                }`}
+                onClick={() => setActiveCategory('All')}
+                className={`whitespace-nowrap pb-3 text-sm font-medium transition-colors border-b-2 ${activeCategory === 'All'
+                  ? 'border-zinc-950 text-zinc-950'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-950'
+                  }`}
               >
-                {cat}
+                All
               </button>
-            ))}
+              {BLOG_CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`whitespace-nowrap pb-3 text-sm font-medium transition-colors border-b-2 ${activeCategory === cat
+                    ? 'border-zinc-950 text-zinc-950'
+                    : 'border-transparent text-zinc-500 hover:text-zinc-950'
+                    }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Posts Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-navy-100/30 overflow-hidden animate-pulse">
-                <div className="aspect-video bg-navy-100"></div>
-                <div className="p-6 space-y-3">
-                  <div className="h-3 bg-navy-100 rounded w-20"></div>
-                  <div className="h-5 bg-navy-100 rounded w-full"></div>
-                  <div className="h-4 bg-navy-50 rounded w-3/4"></div>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="animate-pulse space-y-4">
+                <div className="aspect-[3/2] bg-zinc-100 rounded-lg" />
+                <div className="h-4 bg-zinc-100 rounded w-1/4" />
+                <div className="h-6 bg-zinc-100 rounded w-full" />
+                <div className="h-4 bg-zinc-100 rounded w-3/4" />
               </div>
             ))}
           </div>
         ) : filteredPosts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 gap-y-16">
             {filteredPosts.map((post, index) => (
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
-                className="group animate-slide-up"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className="group animate-slide-up block"
+                style={{ animationDelay: `${(index % 4) * 50}ms` }}
               >
-                <article className="bg-white rounded-2xl border border-navy-100/30 overflow-hidden shadow-card hover:shadow-card-hover transition-smooth h-full flex flex-col">
-                  {post.coverImage ? (
-                    <div className="aspect-video overflow-hidden">
+                <article className="flex flex-col h-full">
+                  <div className="aspect-[3/2] overflow-hidden rounded-lg mb-5 relative bg-zinc-100 border border-zinc-200/50">
+                    {post.coverImage ? (
                       <img
                         src={post.coverImage}
                         alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                    </div>
-                  ) : (
-                    <div className="aspect-video bg-gradient-to-br from-navy-50 to-navy-100 flex items-center justify-center">
-                      <span className="text-4xl font-black text-navy-200">CB</span>
-                    </div>
-                  )}
-                  <div className="p-6 flex flex-col flex-1">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="tag-chip">{post.category}</span>
-                      <span className="text-xs text-navy-400">{post.readTime} min read</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-navy-950 group-hover:text-navy-700 transition-colors mb-2 leading-snug line-clamp-2">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-navy-500 leading-relaxed line-clamp-2 flex-1 mb-4">
-                      {post.excerpt}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-navy-400 pt-4 border-t border-navy-50">
-                      <span>{post.author}</span>
-                      <span>
-                        {new Date(post.createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </span>
-                    </div>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-sm font-medium text-zinc-300">No Image</div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3 text-xs text-zinc-500 mb-3">
+                    <span>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span className="w-1 h-1 rounded-full bg-zinc-300" />
+                    <span>{post.category}</span>
+                  </div>
+
+                  <h3 className="text-xl font-semibold text-zinc-950 mb-3 leading-snug tracking-tight group-hover:text-zinc-600 transition-colors line-clamp-2">
+                    {post.title}
+                  </h3>
+
+                  <p className="text-sm text-zinc-500 leading-relaxed max-w-md line-clamp-2 mb-4">
+                    {post.excerpt}
+                  </p>
+
+                  <div className="mt-auto pt-2 flex items-center gap-2 text-sm text-zinc-950 font-medium group-hover:text-zinc-600 transition-colors">
+                    Read article <span className="transform group-hover:translate-x-1 transition-transform">→</span>
                   </div>
                 </article>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <div className="w-16 h-16 rounded-2xl bg-navy-50 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-navy-700 mb-2">No posts found</h3>
-            <p className="text-navy-400">Try adjusting your search or filter criteria</p>
+          <div className="text-center py-24 border border-zinc-200 border-dashed rounded-lg max-w-2xl mx-auto px-4">
+            <h3 className="text-xl font-semibold text-zinc-950 mb-2 tracking-tight">No results</h3>
+            <p className="text-zinc-500 mb-6 text-sm">
+              We couldn't find any articles matching your search criteria.
+            </p>
+            <button
+              onClick={() => { setSearch(''); setActiveCategory('All'); }}
+              className="px-4 py-2 bg-zinc-100 text-zinc-950 text-sm font-medium rounded hover:bg-zinc-200 transition-colors"
+            >
+              Clear filters
+            </button>
           </div>
         )}
       </section>

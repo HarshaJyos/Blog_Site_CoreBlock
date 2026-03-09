@@ -45,7 +45,7 @@ export default function AdminBlogsList() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         {/* Table Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-navy-900">All Posts ({posts.length})</h2>
+          <h2 className="text-lg font-semibold text-zinc-900">All Posts ({posts.length})</h2>
         </div>
 
         {/* Table */}
@@ -53,11 +53,11 @@ export default function AdminBlogsList() {
           <table className="w-full">
             <thead>
               <tr className="bg-slate-50 text-left">
-                <th className="px-6 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-xs font-semibold text-navy-500 uppercase tracking-wider text-right">Actions</th>
+                <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -83,13 +83,13 @@ export default function AdminBlogsList() {
                             className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-navy-50 flex items-center justify-center flex-shrink-0">
-                            <span className="text-xs font-bold text-navy-300">CB</span>
+                          <div className="w-10 h-10 rounded-lg bg-zinc-100 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-bold text-zinc-400">CB</span>
                           </div>
                         )}
                         <div className="min-w-0">
-                          <p className="font-medium text-navy-900 truncate max-w-xs">{post.title}</p>
-                          <p className="text-xs text-navy-400 truncate max-w-xs">{post.slug}</p>
+                          <p className="font-medium text-zinc-900 truncate max-w-xs">{post.title}</p>
+                          <p className="text-xs text-zinc-500 truncate max-w-xs">{post.slug}</p>
                         </div>
                       </div>
                     </td>
@@ -106,7 +106,7 @@ export default function AdminBlogsList() {
                         {post.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-navy-500">
+                    <td className="px-6 py-4 text-sm text-zinc-500">
                       {new Date(post.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -118,7 +118,7 @@ export default function AdminBlogsList() {
                         <Link
                           href={`/blog/${post.slug}`}
                           target="_blank"
-                          className="p-2 rounded-lg text-navy-400 hover:text-navy-700 hover:bg-navy-50 transition-smooth"
+                          className="p-2 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-smooth"
                           title="View"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +128,7 @@ export default function AdminBlogsList() {
                         </Link>
                         <Link
                           href={`/admin/blogs/${post.slug}/edit`}
-                          className="p-2 rounded-lg text-navy-400 hover:text-navy-700 hover:bg-navy-50 transition-smooth"
+                          className="p-2 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-smooth"
                           title="Edit"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,16 +152,16 @@ export default function AdminBlogsList() {
               ) : (
                 <tr>
                   <td colSpan={5} className="px-6 py-16 text-center">
-                    <div className="w-14 h-14 rounded-2xl bg-navy-50 flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-7 h-7 text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-14 h-14 rounded-2xl bg-zinc-50 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-7 h-7 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                       </svg>
                     </div>
-                    <p className="text-navy-600 font-medium mb-1">No posts found</p>
-                    <p className="text-navy-400 text-sm mb-4">Create your first blog post</p>
+                    <p className="text-zinc-900 font-medium mb-1">No posts found</p>
+                    <p className="text-zinc-500 text-sm mb-4">Create your first blog post</p>
                     <Link
                       href="/admin/blogs/new"
-                      className="inline-flex items-center px-4 py-2 bg-navy-700 text-white text-sm font-medium rounded-lg hover:bg-navy-800 transition-smooth"
+                      className="inline-flex items-center px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-800 transition-smooth"
                     >
                       + New Post
                     </Link>

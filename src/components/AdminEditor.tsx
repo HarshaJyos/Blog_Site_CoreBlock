@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
@@ -24,6 +24,8 @@ import ContentEditable from '../package/ui/ContentEditable';
 import ToolbarPlugin from '../package/plugins/ToolbarPlugin';
 import CodeHighlightPlugin from '../package/plugins/CodeHighlightPlugin';
 import LinkPlugin from '../package/plugins/LinkPlugin';
+import FloatingLinkEditorPlugin from '../package/plugins/FloatingLinkEditorPlugin';
+import FloatingTextFormatToolbarPlugin from '../package/plugins/FloatingTextFormatToolbarPlugin';
 import ImagesPlugin from '../package/plugins/ImagesPlugin';
 import InlineImagePlugin from '../package/plugins/InlineImagePlugin';
 import AutoLinkPlugin from '../package/plugins/AutoLinkPlugin';
@@ -53,12 +55,14 @@ function SetInitialContentPlugin({ content }: { content: string }) {
   useEffect(() => {
     if (content && !hasLoaded.current) {
       hasLoaded.current = true;
-      try {
-        const editorState = editor.parseEditorState(content);
-        editor.setEditorState(editorState);
-      } catch (e) {
-        console.error('Failed to load initial content:', e);
-      }
+      setTimeout(() => {
+        try {
+          const editorState = editor.parseEditorState(content);
+          editor.setEditorState(editorState);
+        } catch (e) {
+          console.error('Failed to load initial content:', e);
+        }
+      }, 0);
     }
   }, [editor, content]);
 
@@ -83,13 +87,23 @@ function EditorInner({
     [onChange]
   );
 
+  const [activeEditor, setActiveEditor] = useState(editor);
+  const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
+  const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
+
+  const onRef = (_floatingAnchorElem: HTMLDivElement) => {
+    if (_floatingAnchorElem !== null) {
+      setFloatingAnchorElem(_floatingAnchorElem);
+    }
+  };
+
   return (
     <>
       <ToolbarPlugin
         editor={editor}
-        activeEditor={editor}
-        setActiveEditor={() => {}}
-        setIsLinkEditMode={() => {}}
+        activeEditor={activeEditor}
+        setActiveEditor={setActiveEditor}
+        setIsLinkEditMode={setIsLinkEditMode}
       />
       <div className="editor-container">
         <DragDropPaste />
@@ -105,7 +119,7 @@ function EditorInner({
         <RichTextPlugin
           contentEditable={
             <div className="editor-scroller">
-              <div className="editor">
+              <div className="editor" ref={onRef}>
                 <ContentEditable placeholder="Start writing your blog post..." />
               </div>
             </div>
@@ -134,6 +148,19 @@ function EditorInner({
         <LayoutPlugin />
         <OnChangePlugin onChange={handleChange} ignoreSelectionChange={true} />
         {initialContent && <SetInitialContentPlugin content={initialContent} />}
+        {floatingAnchorElem && (
+          <>
+            <FloatingLinkEditorPlugin
+              anchorElem={floatingAnchorElem}
+              isLinkEditMode={isLinkEditMode}
+              setIsLinkEditMode={setIsLinkEditMode}
+            />
+            <FloatingTextFormatToolbarPlugin
+              anchorElem={floatingAnchorElem}
+              setIsLinkEditMode={setIsLinkEditMode}
+            />
+          </>
+        )}
       </div>
     </>
   );

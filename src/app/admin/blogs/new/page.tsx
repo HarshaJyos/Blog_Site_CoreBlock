@@ -165,7 +165,7 @@ export default function NewBlogPage() {
                     index < currentStep
                       ? 'bg-green-500 text-white shadow-sm'
                       : index === currentStep
-                      ? 'bg-navy-700 text-white shadow-md'
+                      ? 'bg-zinc-900 text-white shadow-md'
                       : 'bg-slate-100 text-slate-400'
                   }`}
                 >
@@ -179,7 +179,7 @@ export default function NewBlogPage() {
                 </div>
                 <span
                   className={`text-sm font-medium hidden sm:block ${
-                    index <= currentStep ? 'text-navy-900' : 'text-slate-400'
+                    index <= currentStep ? 'text-zinc-900' : 'text-slate-400'
                   }`}
                 >
                   {step}
@@ -210,12 +210,12 @@ export default function NewBlogPage() {
       {/* Step 1: Blog Details */}
       {currentStep === 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 animate-scale-in">
-          <h2 className="text-xl font-bold text-navy-900 mb-6">Blog Details</h2>
+          <h2 className="text-xl font-bold text-zinc-900 mb-6">Blog Details</h2>
 
           <div className="space-y-5">
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">
                 Title <span className="text-red-500">*</span>
               </label>
               <input
@@ -223,48 +223,48 @@ export default function NewBlogPage() {
                 value={formData.title}
                 onChange={(e) => updateTitle(e.target.value)}
                 placeholder="Enter an engaging title..."
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth"
               />
             </div>
 
             {/* Slug */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">
                 URL Slug <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-navy-400">/blog/</span>
+                <span className="text-sm text-zinc-400">/blog/</span>
                 <input
                   type="text"
                   value={formData.slug}
                   onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))}
                   placeholder="url-slug"
-                  className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth"
+                  className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth"
                 />
               </div>
             </div>
 
             {/* Excerpt */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Excerpt</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Excerpt</label>
               <textarea
                 value={formData.excerpt}
                 onChange={(e) => setFormData((p) => ({ ...p, excerpt: e.target.value }))}
                 placeholder="A brief summary of the blog post..."
                 rows={3}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth resize-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth resize-none"
               />
             </div>
 
             {/* Cover Image URL */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Cover Image URL</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Cover Image URL</label>
               <input
                 type="url"
                 value={formData.coverImage}
                 onChange={(e) => setFormData((p) => ({ ...p, coverImage: e.target.value }))}
                 placeholder="https://images.unsplash.com/..."
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth"
               />
               {formData.coverImage && (
                 <div className="mt-3 rounded-xl overflow-hidden border border-slate-200">
@@ -276,23 +276,23 @@ export default function NewBlogPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Author */}
               <div>
-                <label className="block text-sm font-medium text-navy-700 mb-1.5">Author</label>
+                <label className="block text-sm font-medium text-zinc-700 mb-1.5">Author</label>
                 <input
                   type="text"
                   value={formData.author}
                   onChange={(e) => setFormData((p) => ({ ...p, author: e.target.value }))}
                   placeholder="Author name"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth"
                 />
               </div>
 
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-navy-700 mb-1.5">Category</label>
+                <label className="block text-sm font-medium text-zinc-700 mb-1.5">Category</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData((p) => ({ ...p, category: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 transition-smooth bg-white"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 transition-smooth bg-white"
                 >
                   {BLOG_CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -303,7 +303,7 @@ export default function NewBlogPage() {
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Tags</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Tags</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
@@ -311,12 +311,12 @@ export default function NewBlogPage() {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                   placeholder="Add a tag..."
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth text-sm"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth text-sm"
                 />
                 <button
                   type="button"
                   onClick={addTag}
-                  className="px-4 py-2.5 bg-navy-50 text-navy-700 rounded-xl font-medium text-sm hover:bg-navy-100 transition-smooth"
+                  className="px-4 py-2.5 bg-zinc-50 text-zinc-700 rounded-xl font-medium text-sm hover:bg-zinc-100 transition-smooth"
                 >
                   Add
                 </button>
@@ -328,7 +328,7 @@ export default function NewBlogPage() {
                       {tag}
                       <button
                         onClick={() => removeTag(tag)}
-                        className="ml-1.5 text-navy-400 hover:text-red-500 transition-colors"
+                        className="ml-1.5 text-zinc-400 hover:text-red-500 transition-colors"
                       >
                         ×
                       </button>
@@ -354,13 +354,13 @@ export default function NewBlogPage() {
       {/* Step 3: SEO Settings */}
       {currentStep === 2 && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 animate-scale-in">
-          <h2 className="text-xl font-bold text-navy-900 mb-2">SEO Settings</h2>
-          <p className="text-sm text-navy-500 mb-6">Optimize your post for search engines</p>
+          <h2 className="text-xl font-bold text-zinc-900 mb-2">SEO Settings</h2>
+          <p className="text-sm text-zinc-500 mb-6">Optimize your post for search engines</p>
 
           <div className="space-y-5">
             {/* Meta Title */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Meta Title</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Meta Title</label>
               <input
                 type="text"
                 value={formData.seo.metaTitle}
@@ -368,16 +368,16 @@ export default function NewBlogPage() {
                   setFormData((p) => ({ ...p, seo: { ...p.seo, metaTitle: e.target.value } }))
                 }
                 placeholder={formData.title || 'SEO title...'}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth"
               />
-              <p className="text-xs text-navy-400 mt-1">
+              <p className="text-xs text-zinc-400 mt-1">
                 {(formData.seo.metaTitle || formData.title).length}/60 characters
               </p>
             </div>
 
             {/* Meta Description */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Meta Description</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Meta Description</label>
               <textarea
                 value={formData.seo.metaDescription}
                 onChange={(e) =>
@@ -385,16 +385,16 @@ export default function NewBlogPage() {
                 }
                 placeholder={formData.excerpt || 'A compelling description for search results...'}
                 rows={3}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth resize-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth resize-none"
               />
-              <p className="text-xs text-navy-400 mt-1">
+              <p className="text-xs text-zinc-400 mt-1">
                 {(formData.seo.metaDescription || formData.excerpt).length}/160 characters
               </p>
             </div>
 
             {/* Canonical URL */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">Canonical URL</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">Canonical URL</label>
               <input
                 type="url"
                 value={formData.seo.canonicalUrl}
@@ -402,13 +402,13 @@ export default function NewBlogPage() {
                   setFormData((p) => ({ ...p, seo: { ...p.seo, canonicalUrl: e.target.value } }))
                 }
                 placeholder="https://coreblock.com/blog/..."
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth"
               />
             </div>
 
             {/* OG Image */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">OG Image URL</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">OG Image URL</label>
               <input
                 type="url"
                 value={formData.seo.ogImage}
@@ -416,13 +416,13 @@ export default function NewBlogPage() {
                   setFormData((p) => ({ ...p, seo: { ...p.seo, ogImage: e.target.value } }))
                 }
                 placeholder={formData.coverImage || 'https://...'}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth"
               />
             </div>
 
             {/* Keywords */}
             <div>
-              <label className="block text-sm font-medium text-navy-700 mb-1.5">SEO Keywords</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5">SEO Keywords</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
@@ -430,12 +430,12 @@ export default function NewBlogPage() {
                   onChange={(e) => setKeywordInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
                   placeholder="Add a keyword..."
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-400 focus:border-transparent text-navy-800 placeholder-slate-300 transition-smooth text-sm"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth text-sm"
                 />
                 <button
                   type="button"
                   onClick={addKeyword}
-                  className="px-4 py-2.5 bg-navy-50 text-navy-700 rounded-xl font-medium text-sm hover:bg-navy-100 transition-smooth"
+                  className="px-4 py-2.5 bg-zinc-50 text-zinc-700 rounded-xl font-medium text-sm hover:bg-zinc-100 transition-smooth"
                 >
                   Add
                 </button>
@@ -447,7 +447,7 @@ export default function NewBlogPage() {
                       {kw}
                       <button
                         onClick={() => removeKeyword(kw)}
-                        className="ml-1.5 text-navy-400 hover:text-red-500 transition-colors"
+                        className="ml-1.5 text-zinc-400 hover:text-red-500 transition-colors"
                       >
                         ×
                       </button>
@@ -459,7 +459,7 @@ export default function NewBlogPage() {
 
             {/* SEO Preview */}
             <div className="bg-slate-50 rounded-xl p-5 border border-slate-200 mt-6">
-              <h3 className="text-sm font-semibold text-navy-700 mb-3">Search Preview</h3>
+              <h3 className="text-sm font-semibold text-zinc-700 mb-3">Search Preview</h3>
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <p className="text-blue-700 text-lg font-medium truncate">
                   {formData.seo.metaTitle || formData.title || 'Page Title'}
@@ -499,7 +499,7 @@ export default function NewBlogPage() {
               <button
                 onClick={() => handleSave('published')}
                 disabled={saving}
-                className="px-6 py-2.5 bg-navy-700 text-white font-semibold rounded-xl hover:bg-navy-800 transition-smooth shadow-sm disabled:opacity-50"
+                className="px-6 py-2.5 bg-zinc-900 text-white font-semibold rounded-xl hover:bg-zinc-800 transition-smooth shadow-sm disabled:opacity-50"
               >
                 {saving ? 'Publishing...' : 'Publish'}
               </button>
@@ -508,7 +508,7 @@ export default function NewBlogPage() {
             <button
               onClick={() => setCurrentStep((prev) => Math.min(STEPS.length - 1, prev + 1))}
               disabled={!canProceed()}
-              className="px-6 py-2.5 bg-navy-700 text-white font-semibold rounded-xl hover:bg-navy-800 transition-smooth shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 bg-zinc-900 text-white font-semibold rounded-xl hover:bg-zinc-800 transition-smooth shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Next →
             </button>

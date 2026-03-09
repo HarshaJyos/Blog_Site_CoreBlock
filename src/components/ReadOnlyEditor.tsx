@@ -18,12 +18,14 @@ function SetContentPlugin({ content }: { content: string }) {
 
   useEffect(() => {
     if (content) {
-      try {
-        const editorState = editor.parseEditorState(content);
-        editor.setEditorState(editorState);
-      } catch (e) {
-        console.error('Failed to parse editor state:', e);
-      }
+      setTimeout(() => {
+        try {
+          const editorState = editor.parseEditorState(content);
+          editor.setEditorState(editorState);
+        } catch (e) {
+          console.error('Failed to parse editor state:', e);
+        }
+      }, 0);
     }
   }, [editor, content]);
 

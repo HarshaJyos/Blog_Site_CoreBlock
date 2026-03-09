@@ -23,26 +23,10 @@ export async function GET(request: NextRequest) {
     const pageSize = parseInt(searchParams.get('pageSize') || '12');
     const lastDocId = searchParams.get('lastDocId');
 
-    let q = query(collection(db, 'blogs'), orderBy('createdAt', 'desc'));
-
-    if (status) {
-      q = query(q, where('status', '==', status));
-    }
-    if (category) {
-      q = query(q, where('category', '==', category));
-    }
-
-    if (lastDocId) {
-      const lastDoc = await getDoc(doc(db, 'blogs', lastDocId));
-      if (lastDoc.exists()) {
-        q = query(q, startAfter(lastDoc), limit(pageSize));
-      }
-    } else {
-      q = query(q, limit(pageSize));
-    }
+    let q = query(collection(db, 'blogs'));
 
     const snapshot = await getDocs(q);
-    const blogs: BlogPost[] = [];
+    let blogs: BlogPost[] = [];
 
     snapshot.forEach((docSnap) => {
       blogs.push({
@@ -51,10 +35,29 @@ export async function GET(request: NextRequest) {
       } as BlogPost);
     });
 
+    if (status) {
+      blogs = blogs.filter(b => b.status === status);
+    }
+    if (category && category !== 'All Topic' && category !== 'All') {
+      blogs = blogs.filter(b => b.category === category);
+    }
+
+    blogs.sort((a, b) => b.createdAt - a.createdAt);
+
+    let startIndex = 0;
+    if (lastDocId) {
+      const idx = blogs.findIndex(b => b.id === lastDocId);
+      if (idx !== -1) {
+        startIndex = idx + 1;
+      }
+    }
+
+    const paginatedBlogs = blogs.slice(startIndex, startIndex + pageSize);
+
     return NextResponse.json({
-      blogs,
-      hasMore: blogs.length === pageSize,
-      lastDocId: blogs.length > 0 ? blogs[blogs.length - 1].id : null,
+      blogs: paginatedBlogs,
+      hasMore: startIndex + pageSize < blogs.length,
+      lastDocId: paginatedBlogs.length > 0 ? paginatedBlogs[paginatedBlogs.length - 1].id : null,
     });
   } catch (error: any) {
     console.error('Error fetching blogs:', error);
