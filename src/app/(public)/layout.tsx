@@ -3,10 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { useAuth } from '@/components/AuthContext';
+import { LoginModal } from '@/components/LoginModal';
 
 function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const links = [
     { href: '/', label: 'Home' },
@@ -27,29 +31,50 @@ function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6">
-            <div className="flex items-center gap-6">
-              {links.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`text-sm font-medium transition-colors ${pathname === link.href
-                      ? 'text-zinc-950'
-                      : 'text-zinc-500 hover:text-zinc-950'
-                    }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm font-medium transition-colors ${pathname === link.href
+                  ? 'text-zinc-950'
+                  : 'text-zinc-500 hover:text-zinc-950'
+                  }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Auth Actions */}
+          <div className="hidden md:flex items-center gap-4">
             <div className="h-4 w-px bg-zinc-200" />
-            <Link
-              href="/admin"
-              className="text-sm font-medium text-zinc-500 hover:text-zinc-950 transition-colors"
-            >
-              Console
-            </Link>
+            {!user ? (
+              <button
+                onClick={() => setIsLoginModalOpen(true)}
+                className="text-sm font-medium px-4 py-2 bg-zinc-950 text-white rounded-xl hover:bg-zinc-800 transition-colors"
+              >
+                Login
+              </button>
+            ) : (
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/account"
+                  className="flex items-center gap-2 text-sm font-medium px-3 py-1.5 text-zinc-700 bg-zinc-50 border border-zinc-200 rounded-lg hover:bg-zinc-100 transition-colors"
+                >
+                  <div className="w-5 h-5 rounded-full bg-zinc-200 flex items-center justify-center text-[10px] font-bold text-zinc-600">
+                    {user.email?.[0].toUpperCase() || 'U'}
+                  </div>
+                  Account
+                </Link>
+                <button
+                  onClick={logout}
+                  className="text-sm font-medium text-zinc-500 hover:text-red-600 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -79,23 +104,49 @@ function Navbar() {
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={`block px-3 py-2.5 rounded-md text-sm font-medium ${pathname === link.href
-                    ? 'bg-zinc-100 text-zinc-950'
-                    : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950'
+                  ? 'bg-zinc-100 text-zinc-950'
+                  : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950'
                   }`}
               >
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/admin"
-              onClick={() => setMobileOpen(false)}
-              className="block px-3 py-2.5 rounded-md text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950"
-            >
-              Console
-            </Link>
+            <div className="pt-2 pb-1 border-t border-zinc-100 mt-2">
+              {!user ? (
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setIsLoginModalOpen(true);
+                  }}
+                  className="w-full text-left block px-3 py-2.5 rounded-md text-sm font-medium text-zinc-950 hover:bg-zinc-50"
+                >
+                  Login
+                </button>
+              ) : (
+                <>
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2.5 rounded-md text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950"
+                  >
+                    Account Context
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setMobileOpen(false);
+                    }}
+                    className="w-full text-left block px-3 py-2.5 rounded-md text-sm font-medium text-red-600 hover:bg-red-50"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </nav>
   );
 }
@@ -126,7 +177,7 @@ function Footer() {
             <ul className="space-y-3">
               <li><Link href="/" className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors">Home</Link></li>
               <li><Link href="/blog" className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors">Journal</Link></li>
-              <li><Link href="/admin" className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors">Console</Link></li>
+              <li><Link href="/account" className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors">Account</Link></li>
             </ul>
           </div>
 

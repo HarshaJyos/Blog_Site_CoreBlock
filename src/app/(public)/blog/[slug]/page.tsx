@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useAuth } from '@/components/AuthContext';
+import { LoginModal } from '@/components/LoginModal';
 import type { BlogPost } from '@/types/blog';
 
 const ReadOnlyEditor = dynamic(() => import('@/components/ReadOnlyEditor'), {
@@ -28,6 +30,13 @@ export default function BlogDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Likes & Auth
+  const { user } = useAuth();
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   useEffect(() => {
     async function fetchPost() {
       try {
@@ -38,6 +47,7 @@ export default function BlogDetailPage() {
         }
         const data = await res.json();
         setPost(data);
+        setLikeCount(data.likes || 0);
 
         // Fetch prev/next posts
         const listRes = await fetch(`/api/blogs?status=published&pageSize=100`);
@@ -56,8 +66,59 @@ export default function BlogDetailPage() {
         setLoading(false);
       }
     }
-    if (params.slug) fetchPost();
-  }, [params.slug]);
+
+    async function checkLikeStatus() {
+      if (!user || !params.slug) return;
+      try {
+        const res = await fetch(`/api/blogs/${params.slug}/like?userId=${user.uid}`);
+        if (res.ok) {
+          const data = await res.json();
+          setIsLiked(data.liked);
+        }
+      } catch (err) {
+        console.error('Failed to check like status', err);
+      }
+    }
+
+    if (params.slug) {
+      fetchPost();
+      checkLikeStatus();
+    }
+  }, [params.slug, user]);
+
+  const handleToggleLike = async () => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+    if (isLikeLoading) return;
+
+    try {
+      setIsLikeLoading(true);
+      const action = isLiked ? 'unlike' : 'like';
+
+      // Optimistic update
+      setIsLiked(!isLiked);
+      setLikeCount(prev => action === 'like' ? prev + 1 : Math.max(0, prev - 1));
+
+      const res = await fetch(`/api/blogs/${params.slug}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.uid, action })
+      });
+
+      if (!res.ok) {
+        // Revert optimistic update on failure
+        setIsLiked(isLiked);
+        setLikeCount(prev => action === 'like' ? prev - 1 : prev + 1);
+        throw new Error('Failed to toggle like');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLikeLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -173,24 +234,51 @@ export default function BlogDetailPage() {
         <div className="mt-16 pt-8 border-t border-zinc-100">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 font-semibold text-lg">
+              <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 font-semibold text-lg shrink-0">
                 {post.author.charAt(0)}
               </div>
               <div>
                 <p className="text-base font-semibold text-zinc-900">{post.author}</p>
-                <div className="flex items-center gap-3 text-sm text-zinc-500 mt-1">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm text-zinc-500 mt-1">
                   <time dateTime={new Date(post.publishedAt || post.createdAt).toISOString()}>{publishDate}</time>
-                  <span className="w-1 h-1 rounded-full bg-zinc-300" />
-                  <span>{post.readTime} min read</span>
+                  <span className="w-1 h-1 rounded-full bg-zinc-300 hidden sm:inline-block" />
+                  <span className="hidden sm:inline-block">{post.readTime} min read</span>
                   <span className="w-1 h-1 rounded-full bg-zinc-300" />
                   <span>{post.category}</span>
                 </div>
               </div>
             </div>
+
+            {/* Dynamic Like Button (Small) */}
+            <div className="flex items-center gap-3 sm:pl-6 sm:border-l border-zinc-100">
+              <button
+                onClick={handleToggleLike}
+                disabled={isLikeLoading}
+                className={`group flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 shadow-sm border ${isLiked
+                  ? 'bg-red-50 border-red-200 text-red-500 shadow-red-100'
+                  : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300 hover:bg-zinc-50'
+                  }`}
+                title={isLiked ? "Unlike this article" : "Like this article"}
+              >
+                <svg
+                  className={`w-5 h-5 transition-transform duration-300 ${isLiked ? 'scale-110 drop-shadow-sm' : 'group-hover:scale-110'}`}
+                  viewBox="0 0 24 24"
+                  fill={isLiked ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  strokeWidth={isLiked ? "1.5" : "2"}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-zinc-900 leading-none">{likeCount}</span>
+                <span className="text-xs text-zinc-500 mt-0.5">{likeCount === 1 ? 'Like' : 'Likes'}</span>
+              </div>
+            </div>
           </div>
 
           {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-12">
               <span className="text-sm text-zinc-400 mr-2 flex items-center">Tagged in:</span>
               {post.tags.map(tag => (
                 <span key={tag} className="px-3 py-1 bg-zinc-100 text-zinc-600 rounded-md text-xs font-medium">
@@ -199,6 +287,7 @@ export default function BlogDetailPage() {
               ))}
             </div>
           )}
+
         </div>
 
         {/* Minimalist Post Navigation */}
@@ -222,6 +311,14 @@ export default function BlogDetailPage() {
           ) : <div className="max-w-[50%]" />}
         </div>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        title="Sign in to Like"
+        subtitle="Join CoreBlock to save and like your favorite articles."
+      />
     </article>
   );
 }

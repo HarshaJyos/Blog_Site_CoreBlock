@@ -7,6 +7,7 @@ import {
     updateDoc,
     increment,
     serverTimestamp,
+    collection,
 } from 'firebase/firestore';
 
 // GET /api/polls/[id] - fetch poll results
@@ -16,11 +17,25 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
+        const userId = request.nextUrl.searchParams.get('userId');
+
         const docRef = doc(db, 'polls', id);
         const docSnap = await getDoc(docRef);
 
+        let userVotedOption = null;
+        if (userId && docSnap.exists()) {
+            const voteDocRef = doc(collection(db, 'polls', id, 'votes'), userId);
+            const voteSnap = await getDoc(voteDocRef);
+            if (voteSnap.exists()) {
+                userVotedOption = voteSnap.data().optionUid;
+            }
+        }
+
         if (docSnap.exists()) {
-            return NextResponse.json(docSnap.data());
+            return NextResponse.json({
+                ...docSnap.data(),
+                userVote: userVotedOption,
+            });
         } else {
             // Return empty results if poll hasn't been voted on yet
             return NextResponse.json({
@@ -48,10 +63,10 @@ export async function POST(
 
         // Handle Vote action
         if (body.action === 'vote') {
-            const { optionUid, createdAt } = body;
+            const { optionUid, createdAt, userId } = body;
 
-            if (!optionUid) {
-                return NextResponse.json({ error: 'Option UID is required' }, { status: 400 });
+            if (!optionUid || !userId) {
+                return NextResponse.json({ error: 'Option UID and User ID are required' }, { status: 400 });
             }
 
             // Check expiration (24 hours)
@@ -68,6 +83,14 @@ export async function POST(
 
             const docRef = doc(db, 'polls', id);
             const docSnap = await getDoc(docRef);
+
+            // Check if user already voted
+            const voteDocRef = doc(collection(db, 'polls', id, 'votes'), userId);
+            const voteSnap = await getDoc(voteDocRef);
+
+            if (voteSnap.exists()) {
+                return NextResponse.json({ error: 'User has already voted' }, { status: 403 });
+            }
 
             if (!docSnap.exists()) {
                 // Initialize poll document if first vote or synchronized late
@@ -87,6 +110,12 @@ export async function POST(
                     lastVoteAt: serverTimestamp(),
                 });
             }
+
+            // Record the user's vote
+            await setDoc(voteDocRef, {
+                optionUid,
+                timestamp: serverTimestamp(),
+            });
 
             // Fetch updated data to return
             const updatedSnap = await getDoc(docRef);

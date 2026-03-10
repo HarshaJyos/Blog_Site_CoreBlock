@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { AdminGuard } from '@/components/AdminGuard';
 
 const sidebarLinks = [
   {
@@ -41,83 +42,85 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-zinc-950 text-white flex flex-col z-40">
-        {/* Logo */}
-        <div className="px-6 py-5 border-b border-zinc-800">
-          <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
-              <span className="text-white font-black text-base">C</span>
-            </div>
-            <span className="text-lg font-bold">
-              Core<span className="text-zinc-400">Block</span>
-            </span>
-          </Link>
-          <p className="text-xs text-zinc-500 mt-1">Admin Panel</p>
-        </div>
+    <AdminGuard>
+      <div className="flex min-h-screen bg-slate-50">
+        {/* Sidebar */}
+        <aside className="fixed left-0 top-0 h-full w-64 bg-zinc-950 text-white flex flex-col z-40">
+          {/* Logo */}
+          <div className="px-6 py-5 border-b border-zinc-800">
+            <Link href="/admin" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
+                <span className="text-white font-black text-base">C</span>
+              </div>
+              <span className="text-lg font-bold">
+                Core<span className="text-zinc-400">Block</span>
+              </span>
+            </Link>
+            <p className="text-xs text-zinc-500 mt-1">Admin Panel</p>
+          </div>
 
-        {/* Nav Links */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {sidebarLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-smooth ${isActive
+          {/* Nav Links */}
+          <nav className="flex-1 px-3 py-4 space-y-1">
+            {sidebarLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-smooth ${isActive
                     ? 'bg-zinc-800/80 text-white shadow-sm'
                     : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-                  }`}
-              >
-                {link.icon}
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+                    }`}
+                >
+                  {link.icon}
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* Footer */}
-        <div className="px-4 py-4 border-t border-zinc-800">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-zinc-400 hover:text-white text-sm transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            View Site
-          </Link>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex-1 ml-64">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-zinc-200 px-8 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-zinc-900">
-              {pathname === '/admin' && 'Dashboard'}
-              {pathname === '/admin/blogs' && 'All Posts'}
-              {pathname === '/admin/blogs/new' && 'Create New Post'}
-              {pathname.includes('/edit') && 'Edit Post'}
-            </h1>
-            <div className="flex items-center gap-3">
-              <Link
-                href="/admin/blogs/new"
-                className="px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-800 transition-smooth shadow-sm"
-              >
-                + New Post
-              </Link>
-            </div>
+          {/* Footer */}
+          <div className="px-4 py-4 border-t border-zinc-800 flex flex-col gap-4">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-zinc-400 hover:text-white text-sm transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              View Site
+            </Link>
           </div>
-        </header>
+        </aside>
 
-        {/* Page Content */}
-        <div className="p-8">
-          {children}
+        {/* Main Content */}
+        <div className="flex-1 ml-64">
+          {/* Top bar */}
+          <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-zinc-200 px-8 py-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-semibold text-zinc-900">
+                {pathname === '/admin' && 'Dashboard'}
+                {pathname === '/admin/blogs' && 'All Posts'}
+                {pathname === '/admin/blogs/new' && 'Create New Post'}
+                {pathname.includes('/edit') && 'Edit Post'}
+              </h1>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/admin/blogs/new"
+                  className="px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-800 transition-smooth shadow-sm"
+                >
+                  + New Post
+                </Link>
+              </div>
+            </div>
+          </header>
+
+          {/* Page Content */}
+          <div className="p-8">
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </AdminGuard>
   );
 }

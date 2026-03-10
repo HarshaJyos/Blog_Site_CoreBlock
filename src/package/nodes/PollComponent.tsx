@@ -3,6 +3,9 @@ import type { JSX } from 'react';
 
 import './PollNode.css';
 
+import { useAuth } from '@/components/AuthContext';
+import { LoginModal } from '@/components/LoginModal';
+
 import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
@@ -162,26 +165,11 @@ export default function PollComponent({
   const [votedUid, setVotedUid] = useState<string | null>(null);
   const [isExpired, setIsExpired] = useState(false);
 
+  const { user } = useAuth();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
   // Load results and user vote status
   useEffect(() => {
-    // Check local storage for previous vote
-    const storageKey = `poll_voted_${pollId}`;
-    const storedVote = localStorage.getItem(storageKey);
-    if (storedVote) {
-      try {
-        const { uid, timestamp } = JSON.parse(storedVote);
-        const now = Date.now();
-        // Only set if within 24 hours
-        if (now - timestamp < 24 * 60 * 60 * 1000) {
-          setVotedUid(uid);
-        } else {
-          localStorage.removeItem(storageKey);
-        }
-      } catch (e) {
-        localStorage.removeItem(storageKey);
-      }
-    }
-
     // Check expiration
     const now = Date.now();
     if (now - createdAt > 24 * 60 * 60 * 1000) {
@@ -190,16 +178,20 @@ export default function PollComponent({
 
     // Fetch live results
     if (!editable) {
-      fetch(`/api/polls/${pollId}`)
+      const url = user?.uid ? `/api/polls/${pollId}?userId=${user.uid}` : `/api/polls/${pollId}`;
+      fetch(url)
         .then((res) => res.json())
         .then((data) => {
           if (data && data.options) {
             setPollResults(data);
+            if (data.userVote) {
+              setVotedUid(data.userVote);
+            }
           }
         })
         .catch((err) => console.error('Failed to fetch poll results:', err));
     }
-  }, [pollId, editable, createdAt]);
+  }, [pollId, editable, createdAt, user]);
 
   const totalVotes = useMemo(() => {
     if (pollResults) return pollResults.totalVotes;
@@ -209,25 +201,26 @@ export default function PollComponent({
   const handleVote = async (optionUid: string) => {
     if (votedUid || isExpired) return;
 
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
     try {
       const response = await fetch(`/api/polls/${pollId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'vote', optionUid, createdAt }),
+        body: JSON.stringify({ action: 'vote', optionUid, createdAt, userId: user.uid }),
       });
 
       if (response.ok) {
         const data = await response.json();
         setPollResults(data);
         setVotedUid(optionUid);
-
-        // Store in local storage
-        localStorage.setItem(
-          `poll_voted_${pollId}`,
-          JSON.stringify({ uid: optionUid, timestamp: Date.now() })
-        );
       } else if (response.status === 403) {
-        setIsExpired(true);
+        const data = await response.json();
+        if (data.expired) setIsExpired(true);
+        if (data.error === 'User has already voted') setVotedUid(optionUid);
       }
     } catch (err) {
       console.error('Failed to submit vote:', err);
@@ -356,6 +349,7 @@ export default function PollComponent({
           )}
         </div>
       </div>
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} title="Sign in to Vote" subtitle="Join the CoreBlock community to participate in community polls." />
     </div>
   );
 }
