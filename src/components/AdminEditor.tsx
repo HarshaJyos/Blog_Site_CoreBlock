@@ -45,6 +45,7 @@ import PollPlugin from '../package/plugins/PollPlugin';
 import TableCellResizer from '../package/plugins/TableCellResizer';
 import ExcalidrawPlugin from '../package/plugins/ExcalidrawPlugin';
 import CodeLineNumbersPlugin from '../package/plugins/CodeLineNumbersPlugin';
+import CodeActionMenuPlugin from '../package/plugins/CodeActionMenuPlugin';
 import AutoEmbedPlugin from '../package/plugins/AutoEmbedPlugin';
 import { TableContext } from '../package/plugins/TablePlugin';
 import { ToolbarContext } from '../package/context/ToolbarContext';
@@ -163,6 +164,7 @@ function EditorInner({
               anchorElem={floatingAnchorElem}
               setIsLinkEditMode={setIsLinkEditMode}
             />
+            <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
           </>
         )}
       </div>

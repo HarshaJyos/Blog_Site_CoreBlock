@@ -92,27 +92,33 @@ export default function BlogListingPage() {
       {/* Posts Grid */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="animate-pulse space-y-4">
-                <div className="aspect-[3/2] bg-zinc-100 rounded-lg" />
-                <div className="h-4 bg-zinc-100 rounded w-1/4" />
-                <div className="h-6 bg-zinc-100 rounded w-full" />
-                <div className="h-4 bg-zinc-100 rounded w-3/4" />
+          <div className="flex flex-col gap-6">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="animate-pulse flex flex-col sm:flex-row gap-6 p-4 rounded-xl border border-zinc-200/50">
+                <div className="w-full sm:w-1/3 md:w-1/4 aspect-[16/9] sm:aspect-[4/3] bg-zinc-100 rounded-lg shrink-0" />
+                <div className="flex-1 py-2 space-y-4">
+                  <div className="h-4 bg-zinc-100 rounded w-1/4" />
+                  <div className="h-6 bg-zinc-100 rounded w-3/4" />
+                  <div className="h-4 bg-zinc-100 rounded w-full" />
+                  <div className="flex h-4 gap-4 mt-auto">
+                    <div className="w-10 bg-zinc-100 rounded" />
+                    <div className="w-10 bg-zinc-100 rounded" />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         ) : filteredPosts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 gap-y-16">
+          <div className="flex flex-col gap-5">
             {filteredPosts.map((post, index) => (
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
                 className="group animate-slide-up block"
-                style={{ animationDelay: `${(index % 4) * 50}ms` }}
+                style={{ animationDelay: `${(index % 4) * 40}ms` }}
               >
-                <article className="flex flex-col h-full">
-                  <div className="aspect-[3/2] overflow-hidden rounded-lg mb-5 relative bg-zinc-100 border border-zinc-200/50">
+                <article className="flex flex-col sm:flex-row gap-5 p-4 rounded-xl border border-zinc-200/60 bg-white hover:border-zinc-300 transition-colors hover:shadow-sm">
+                  <div className="w-full sm:w-[28%] md:w-1/4 aspect-[16/9] sm:aspect-[4/3] overflow-hidden rounded-lg relative bg-zinc-100 shrink-0">
                     {post.coverImage ? (
                       <img
                         src={post.coverImage}
@@ -120,26 +126,44 @@ export default function BlogListingPage() {
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-sm font-medium text-zinc-300">No Image</div>
+                      <div className="w-full h-full flex items-center justify-center text-xs font-medium text-zinc-300">No Image</div>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-3 text-xs text-zinc-500 mb-3">
-                    <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                    <span className="w-1 h-1 rounded-full bg-zinc-300" />
-                    <span>{post.category}</span>
-                  </div>
+                  <div className="flex-1 min-w-0 py-1 flex flex-col">
+                    <div className="flex items-center gap-3 text-[13px] font-medium text-zinc-500 mb-2.5">
+                      <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span className="w-1 h-1 rounded-full bg-zinc-300" />
+                      <span>{post.category}</span>
+                    </div>
 
-                  <h3 className="text-xl font-semibold text-zinc-950 mb-3 leading-snug tracking-tight group-hover:text-zinc-600 transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
+                    <h3 className="text-xl font-semibold text-zinc-950 mb-2 leading-snug tracking-tight group-hover:text-zinc-600 transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
 
-                  <p className="text-sm text-zinc-500 leading-relaxed max-w-md line-clamp-2 mb-4">
-                    {post.excerpt}
-                  </p>
+                    <p className="text-sm text-zinc-500 leading-relaxed line-clamp-2 mb-4">
+                      {post.excerpt}
+                    </p>
 
-                  <div className="mt-auto pt-2 flex items-center gap-2 text-sm text-zinc-950 font-medium group-hover:text-zinc-600 transition-colors">
-                    Read article <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                    <div className="mt-auto flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-[13px] font-medium text-zinc-500">
+                        <span className="flex items-center gap-1.5" title="Views">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          {post.views || 0}
+                        </span>
+                        <span className="flex items-center gap-1.5" title="Likes">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                          {post.likes || 0}
+                        </span>
+                        <span className="flex items-center gap-1.5" title="Comments">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                          {post.commentCount || 0}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[13px] text-zinc-950 font-semibold group-hover:text-zinc-600 transition-colors">
+                        Read <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                      </div>
+                    </div>
                   </div>
                 </article>
               </Link>

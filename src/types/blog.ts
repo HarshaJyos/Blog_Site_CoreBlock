@@ -22,6 +22,9 @@ export interface BlogPost {
   updatedAt: number;
   publishedAt: number | null;
   readTime: number; // estimated minutes
+  views: number;
+  likes: number;
+  commentCount: number;
 }
 
 export interface BlogPostFormData {

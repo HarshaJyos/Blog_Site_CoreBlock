@@ -57,6 +57,7 @@ export default function AdminBlogsList() {
                 <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Category</th>
                 <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Stats</th>
                 <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
@@ -67,6 +68,7 @@ export default function AdminBlogsList() {
                     <td className="px-6 py-4"><div className="h-4 bg-slate-100 rounded w-48"></div></td>
                     <td className="px-6 py-4"><div className="h-3 bg-slate-50 rounded w-20"></div></td>
                     <td className="px-6 py-4"><div className="h-5 bg-slate-50 rounded-full w-16"></div></td>
+                    <td className="px-6 py-4"><div className="h-3 bg-slate-50 rounded w-24"></div></td>
                     <td className="px-6 py-4"><div className="h-3 bg-slate-50 rounded w-24"></div></td>
                     <td className="px-6 py-4"><div className="h-3 bg-slate-50 rounded w-16 ml-auto"></div></td>
                   </tr>
@@ -113,6 +115,18 @@ export default function AdminBlogsList() {
                         year: 'numeric',
                       })}
                     </td>
+                    <td className="px-6 py-4 text-xs font-medium text-zinc-500">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1" title="Views">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          {post.views || 0}
+                        </span>
+                        <span className="flex items-center gap-1" title="Likes">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                          {post.likes || 0}
+                        </span>
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <Link
@@ -151,7 +165,7 @@ export default function AdminBlogsList() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-16 text-center">
+                  <td colSpan={6} className="px-6 py-16 text-center">
                     <div className="w-14 h-14 rounded-2xl bg-zinc-50 flex items-center justify-center mx-auto mb-4">
                       <svg className="w-7 h-7 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />

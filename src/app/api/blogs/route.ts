@@ -142,6 +142,9 @@ export async function POST(request: NextRequest) {
         keywords: body.tags || [],
       },
       readTime,
+      views: 0,
+      likes: 0,
+      commentCount: 0,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       publishedAt: body.publishedAt
