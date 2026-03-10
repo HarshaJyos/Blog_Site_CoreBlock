@@ -9,6 +9,16 @@ export default function BlogListingPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [search]);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -27,16 +37,16 @@ export default function BlogListingPage() {
 
   const filteredPosts = posts.filter((post) => {
     const matchesSearch =
-      !search ||
-      post.title.toLowerCase().includes(search.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(search.toLowerCase()) ||
-      post.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
+      !debouncedSearch ||
+      post.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      post.excerpt.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      post.tags.some((t) => t.toLowerCase().includes(debouncedSearch.toLowerCase()));
     const matchesCategory = activeCategory === 'All' || post.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
   return (
-    <div className="animate-fade-in bg-white min-h-screen">
+    <div className={`animate-fade-in bg-white min-h-screen ${isFilterOpen ? 'overflow-hidden' : ''}`}>
       {/* Header */}
       <section className="pt-24 pb-12 md:pt-32 md:pb-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-zinc-200/50">
         <div className="max-w-3xl">
@@ -48,8 +58,8 @@ export default function BlogListingPage() {
           </p>
 
           {/* Search & Filter Controls */}
-          <div className="flex flex-col gap-6 animate-slide-up" style={{ animationDelay: '200ms' }}>
-            <div className="relative">
+          <div className="flex items-center gap-4 animate-slide-up" style={{ animationDelay: '200ms' }}>
+            <div className="relative flex-1">
               <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -58,58 +68,126 @@ export default function BlogListingPage() {
                 placeholder="Search articles..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-zinc-50 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:border-transparent text-zinc-900 placeholder-zinc-400 text-sm transition-shadow"
+                className="w-full pl-11 pr-10 py-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:border-transparent text-zinc-900 placeholder-zinc-400 text-sm transition-all"
               />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-200 rounded-full transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
 
-            <div className="flex items-center gap-6 overflow-x-auto pb-2 md:pb-0 scrollbar-hide border-b border-zinc-100">
-              <button
-                onClick={() => setActiveCategory('All')}
-                className={`whitespace-nowrap pb-3 text-sm font-medium transition-colors border-b-2 ${activeCategory === 'All'
-                  ? 'border-zinc-950 text-zinc-950'
-                  : 'border-transparent text-zinc-500 hover:text-zinc-950'
-                  }`}
-              >
-                All
-              </button>
-              {BLOG_CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`whitespace-nowrap pb-3 text-sm font-medium transition-colors border-b-2 ${activeCategory === cat
-                    ? 'border-zinc-950 text-zinc-950'
-                    : 'border-transparent text-zinc-500 hover:text-zinc-950'
-                    }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+            <button
+              onClick={() => setIsFilterOpen(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-white border border-zinc-200 rounded-xl hover:bg-zinc-50 transition-colors shadow-sm text-zinc-700 font-medium text-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              <span>Filter</span>
+              {activeCategory !== 'All' && (
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-950"></span>
+              )}
+            </button>
           </div>
         </div>
       </section>
+
+      {/* Side Filter Drawer (Amazon Style) */}
+      <div className={`fixed inset-0 z-50 transition-opacity duration-300 ease-in-out ${isFilterOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm"
+          onClick={() => setIsFilterOpen(false)}
+        />
+
+        {/* Drawer */}
+        <div className={`absolute right-0 top-0 bottom-0 w-full max-w-[380px] bg-white shadow-2xl transform transition-transform duration-500 ease-in-out ${isFilterOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100">
+              <h2 className="text-xl font-bold text-zinc-950">Filters</h2>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="p-2 hover:bg-zinc-100 rounded-full transition-colors"
+                aria-label="Close filters"
+              >
+                <svg className="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Categories */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="mb-8">
+                <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-6">Categories</h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => { setActiveCategory('All'); setIsFilterOpen(false); }}
+                    className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all ${activeCategory === 'All'
+                      ? 'bg-zinc-950 text-white font-bold'
+                      : 'bg-zinc-50 text-zinc-700 hover:bg-zinc-100 font-medium'}`}
+                  >
+                    <span>All Articles</span>
+                    {activeCategory === 'All' && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
+                  </button>
+                  {BLOG_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => { setActiveCategory(cat); setIsFilterOpen(false); }}
+                      className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all ${activeCategory === cat
+                        ? 'bg-zinc-950 text-white font-bold'
+                        : 'bg-zinc-50 text-zinc-700 hover:bg-zinc-100 font-medium'}`}
+                    >
+                      <span>{cat}</span>
+                      {activeCategory === cat && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-zinc-100 bg-zinc-50/50">
+              <button
+                onClick={() => { setSearch(''); setActiveCategory('All'); setIsFilterOpen(false); }}
+                className="w-full py-4 text-sm font-bold text-zinc-500 hover:text-zinc-950 transition-colors uppercase tracking-widest"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Posts Grid */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {loading ? (
           <div className="flex flex-col gap-6">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="animate-pulse flex flex-col sm:flex-row gap-6 p-4 rounded-xl border border-zinc-200/50">
-                <div className="w-full sm:w-1/3 md:w-1/4 aspect-[16/9] sm:aspect-[4/3] bg-zinc-100 rounded-lg shrink-0" />
-                <div className="flex-1 py-2 space-y-4">
-                  <div className="h-4 bg-zinc-100 rounded w-1/4" />
-                  <div className="h-6 bg-zinc-100 rounded w-3/4" />
-                  <div className="h-4 bg-zinc-100 rounded w-full" />
-                  <div className="flex h-4 gap-4 mt-auto">
-                    <div className="w-10 bg-zinc-100 rounded" />
-                    <div className="w-10 bg-zinc-100 rounded" />
+              <div key={i} className="animate-pulse flex p-4 rounded-xl border border-zinc-200/60 items-center justify-between gap-6 overflow-hidden">
+                <div className="flex items-center gap-6 w-full">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 bg-zinc-100 rounded-2xl shrink-0"></div>
+                  <div className="flex-1 py-1 space-y-4">
+                    <div className="h-6 bg-zinc-100 rounded w-1/3"></div>
+                    <div className="h-4 bg-zinc-100 rounded w-full"></div>
                   </div>
+                </div>
+                <div className="flex flex-col items-end shrink-0 gap-8">
+                  <div className="h-6 w-6 bg-zinc-100 rounded-full"></div>
+                  <div className="h-4 bg-zinc-100 rounded w-20"></div>
                 </div>
               </div>
             ))}
           </div>
         ) : filteredPosts.length > 0 ? (
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-6 transition-all duration-300">
             {filteredPosts.map((post, index) => (
               <Link
                 key={post.id}
@@ -117,43 +195,47 @@ export default function BlogListingPage() {
                 className="group animate-slide-up block"
                 style={{ animationDelay: `${(index % 4) * 40}ms` }}
               >
-                <article className="flex flex-col sm:flex-row gap-5 p-4 rounded-xl border border-zinc-200/60 bg-white hover:border-zinc-300 transition-colors hover:shadow-sm">
-                  <div className="hidden sm:block sm:w-[28%] md:w-1/4 aspect-[4/3] overflow-hidden rounded-lg relative bg-zinc-100 shrink-0">
+                <article className="flex gap-0 sm:gap-4 p-4 rounded-2xl border border-zinc-300 bg-white hover:border-zinc-400 focus:ring-4 focus:ring-blue-100 transition-all hover:shadow-sm overflow-hidden">
+                  {/* Fixed Square Image - Hidden on mobile */}
+                  <div className="hidden sm:flex w-32 h-32 overflow-hidden rounded-xl relative bg-zinc-100 shrink-0 border border-zinc-200/50">
                     {post.coverImage ? (
-                      <img
-                        src={post.coverImage}
-                        alt={post.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
+                      <img src={post.coverImage} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={post.title} />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs font-medium text-zinc-300">No Image</div>
+                      <div className="w-full h-full flex items-center justify-center text-zinc-300 text-[10px] font-medium uppercase tracking-wider">No Image</div>
                     )}
                   </div>
 
-                  <div className="flex-1 min-w-0 py-1 flex flex-col">
-                    <div className="flex items-center gap-3 text-[13px] font-medium text-zinc-500 mb-2.5">
-                      <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                      <span className="w-1 h-1 rounded-full bg-zinc-300" />
-                      <span>{post.category}</span>
+                  {/* Content Section spanning remaining width */}
+                  <div className="flex flex-col flex-1 min-w-0 py-0.5 sm:py-1 justify-between">
+                    {/* Top Row: Title & Heart aligned at ends */}
+                    <div className="flex justify-between items-start gap-2 sm:gap-4 mb-1.5 sm:mb-2 text-wrap">
+                      <h3 className="text-lg sm:text-2xl font-bold text-zinc-950 uppercase tracking-wide leading-tight group-hover:text-zinc-700 transition-colors line-clamp-2 pr-1 sm:pr-2">
+                        {post.title}
+                      </h3>
+
+                      {/* Heart Icon Right-Aligned */}
+                      <div className="shrink-0 text-zinc-400 group-hover:text-rose-500 transition-colors cursor-pointer mt-0.5 sm:mt-1">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </div>
                     </div>
 
-                    <h3 className="text-xl font-semibold text-zinc-950 mb-2 leading-snug tracking-tight group-hover:text-zinc-600 transition-colors line-clamp-2">
-                      {post.title}
-                    </h3>
-
-                    <p className="text-sm text-zinc-500 leading-relaxed line-clamp-2 mb-4">
+                    {/* Excerpt context - Hidden on mobile */}
+                    <p className="text-[13px] sm:text-sm text-zinc-500 leading-relaxed line-clamp-2 hidden sm:block pr-4 sm:pr-8">
                       {post.excerpt}
                     </p>
 
-                    <div className="mt-auto flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-[13px] font-medium text-zinc-500">
-                        <span className="flex items-center gap-1.5" title="Likes">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                          {post.likes || 0}
-                        </span>
+                    {/* Bottom Row: Date Data & Read More Action */}
+                    <div className="flex items-end justify-between mt-auto pt-3 sm:pt-4">
+                      <div className="flex flex-wrap items-center gap-2 text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                        <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        <span className="hidden sm:inline opacity-50">/</span>
+                        <span className="hidden sm:inline">{post.category}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[13px] text-zinc-950 font-semibold group-hover:text-zinc-600 transition-colors">
-                        Read <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+
+                      <div className="flex items-center gap-1 sm:gap-2 text-[13px] sm:text-[15px] font-semibold text-zinc-950 group-hover:text-zinc-600 transition-colors whitespace-nowrap">
+                        Read More <span className="transform group-hover:translate-x-1 transition-transform ml-0.5 sm:ml-1">→</span>
                       </div>
                     </div>
                   </div>
