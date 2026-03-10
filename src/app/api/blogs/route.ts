@@ -62,7 +62,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const category = searchParams.get('category');
-    const pageSize = parseInt(searchParams.get('pageSize') || '12');
+    const search = searchParams.get('search')?.toLowerCase();
+    const pageSize = parseInt(searchParams.get('pageSize') || '9');
+    const page = parseInt(searchParams.get('page') || '1');
     const lastDocId = searchParams.get('lastDocId');
 
     let q = query(collection(db, 'blogs'));
@@ -83,11 +85,24 @@ export async function GET(request: NextRequest) {
     if (category && category !== 'All Topic' && category !== 'All') {
       blogs = blogs.filter(b => b.category === category);
     }
+    if (search) {
+      blogs = blogs.filter(b =>
+        b.title.toLowerCase().includes(search) ||
+        b.excerpt.toLowerCase().includes(search) ||
+        b.tags.some(t => t.toLowerCase().includes(search))
+      );
+    }
 
     blogs.sort((a, b) => b.createdAt - a.createdAt);
 
-    let startIndex = 0;
-    if (lastDocId) {
+    const total = blogs.length;
+    const totalPages = Math.ceil(total / pageSize);
+    const currentPage = Math.max(1, Math.min(page, totalPages || 1));
+
+    let startIndex = (currentPage - 1) * pageSize;
+
+    // Support for legacy lastDocId pagination if needed, but primary is page-based now
+    if (lastDocId && !searchParams.has('page')) {
       const idx = blogs.findIndex(b => b.id === lastDocId);
       if (idx !== -1) {
         startIndex = idx + 1;
@@ -98,6 +113,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       blogs: paginatedBlogs,
+      total,
+      totalPages,
+      currentPage,
+      pageSize,
       hasMore: startIndex + pageSize < blogs.length,
       lastDocId: paginatedBlogs.length > 0 ? paginatedBlogs[paginatedBlogs.length - 1].id : null,
     });
