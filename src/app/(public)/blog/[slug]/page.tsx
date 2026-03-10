@@ -154,7 +154,7 @@ export default function BlogDetailPage() {
 
         {/* Content container */}
         {post.excerpt && (
-          <p className="text-xl md:text-2xl text-zinc-600 leading-relaxed font-normal mb-12">
+          <p className="text-xl md:text-2xl text-zinc-600 leading-relaxed font-normal mb-4">
             {post.excerpt}
           </p>
         )}

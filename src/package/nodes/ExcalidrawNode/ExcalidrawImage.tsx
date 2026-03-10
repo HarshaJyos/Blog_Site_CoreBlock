@@ -8,11 +8,11 @@
 
 import type { JSX } from 'react';
 
-import type {
+import {
   ExcalidrawElement,
   NonDeleted,
 } from '@excalidraw/excalidraw/types/element/types';
-import type { AppState, BinaryFiles } from '@excalidraw/excalidraw/types/types';
+import { AppState, BinaryFiles } from '@excalidraw/excalidraw/types/types';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
@@ -94,22 +94,35 @@ export default function ExcalidrawImage({
   const [Svg, setSvg] = useState<SVGElement | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
     const setContent = async () => {
-      const { exportToSvg } = await import('@excalidraw/excalidraw');
-      const svg: SVGElement = await exportToSvg({
-        appState,
-        elements,
-        files,
-      });
-      removeStyleFromSvg_HACK(svg);
+      try {
+        // Dynamically import to avoid Turbopack SSR issues with the Excalidraw bundle
+        const excalidrawModule = await import('@excalidraw/excalidraw');
 
-      svg.setAttribute('width', '100%');
-      svg.setAttribute('height', '100%');
-      svg.setAttribute('display', 'block');
+        if (!isMounted) return;
 
-      setSvg(svg);
+        const svg: SVGElement = await excalidrawModule.exportToSvg({
+          appState,
+          elements,
+          files,
+        });
+        removeStyleFromSvg_HACK(svg);
+
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+        svg.setAttribute('display', 'block');
+
+        setSvg(svg);
+      } catch (err) {
+        console.error('Failed to generate Excalidraw SVG:', err);
+      }
     };
     setContent();
+
+    return () => {
+      isMounted = false;
+    };
   }, [elements, files, appState]);
 
   const containerStyle: React.CSSProperties = {};

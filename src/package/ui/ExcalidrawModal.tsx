@@ -10,14 +10,7 @@ import type { JSX } from 'react';
 
 import './ExcalidrawModal.css';
 
-import dynamic from 'next/dynamic';
-
-const Excalidraw = dynamic(
-  () => import('@excalidraw/excalidraw').then((mod) => mod.Excalidraw),
-  { ssr: false }
-);
-
-import type {
+import {
   AppState,
   BinaryFiles,
   ExcalidrawImperativeAPI,
@@ -27,9 +20,19 @@ import { isDOMNode } from 'lexical';
 import * as React from 'react';
 import { ReactPortal, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import dynamic from 'next/dynamic';
 
 import Button from './Button';
 import Modal from './Modal';
+
+const ExcalidrawComponent = dynamic(() => import('./ExcalidrawWrapper'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-full">
+      <p className="text-slate-500">Loading drawing canvas...</p>
+    </div>
+  ),
+});
 
 export type ExcalidrawInitialElements = ExcalidrawInitialDataState['elements'];
 
@@ -233,7 +236,7 @@ export default function ExcalidrawModal({
         tabIndex={-1}>
         <div className="ExcalidrawModal__row">
           {discardModalOpen && <ShowDiscardDialog />}
-          <Excalidraw
+          <ExcalidrawComponent
             onChange={onChange}
             excalidrawAPI={excalidrawAPIRefCallback}
             initialData={{

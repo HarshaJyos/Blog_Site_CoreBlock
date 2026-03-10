@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   },
 };
 
+import Script from "next/script";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,6 +39,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className="min-h-screen bg-white text-navy-950 font-sans antialiased">
+        <Script id="excalidraw-config" strategy="beforeInteractive">
+          {`window.EXCALIDRAW_ASSET_PATH = "/";`}
+        </Script>
         {children}
       </body>
     </html>

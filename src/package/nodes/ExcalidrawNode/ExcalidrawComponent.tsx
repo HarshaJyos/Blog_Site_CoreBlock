@@ -6,15 +6,15 @@
  *
  */
 
-import type {ExcalidrawInitialElements} from '../../ui/ExcalidrawModal';
-import type {NodeKey} from 'lexical';
-import type {JSX} from 'react';
+import type { ExcalidrawInitialElements } from '../../ui/ExcalidrawModal';
+import type { NodeKey } from 'lexical';
+import type { JSX } from 'react';
 
-import {AppState, BinaryFiles} from '@excalidraw/excalidraw/types/types';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
-import {useLexicalNodeSelection} from '@lexical/react/useLexicalNodeSelection';
-import {mergeRegister} from '@lexical/utils';
+import { AppState, BinaryFiles } from '@excalidraw/excalidraw/types/types';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
+import { mergeRegister } from '@lexical/utils';
 import {
   $getNodeByKey,
   CLICK_COMMAND,
@@ -23,12 +23,12 @@ import {
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
 } from 'lexical';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as React from 'react';
 
 import ExcalidrawModal from '../../ui/ExcalidrawModal';
 import ImageResizer from '../../ui/ImageResizer';
-import {$isExcalidrawNode} from '.';
+import { $isExcalidrawNode } from '.';
 import ExcalidrawImage from './ExcalidrawImage';
 
 export default function ExcalidrawComponent({
