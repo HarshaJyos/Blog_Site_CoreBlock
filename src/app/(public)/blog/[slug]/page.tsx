@@ -254,7 +254,7 @@ export default function BlogDetailPage() {
               <button
                 onClick={handleToggleLike}
                 disabled={isLikeLoading}
-                className={`group flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 shadow-sm border ${isLiked
+                className={`group flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 shadow-sm border disabled:opacity-50 disabled:cursor-not-allowed ${isLiked
                   ? 'bg-red-50 border-red-200 text-red-500 shadow-red-100'
                   : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300 hover:bg-zinc-50'
                   }`}

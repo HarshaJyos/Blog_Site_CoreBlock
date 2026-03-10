@@ -44,6 +44,7 @@ function PollOptionComponent({
   onVote,
   votedUid,
   serverVotes,
+  isSubmitting,
 }: {
   index: number;
   option: Option;
@@ -57,6 +58,7 @@ function PollOptionComponent({
   onVote: (uid: string) => void;
   votedUid: string | null;
   serverVotes: number;
+  isSubmitting: boolean;
 }): JSX.Element {
   const { clientID } = useCollaborationContext();
   const checkboxRef = useRef(null);
@@ -77,7 +79,7 @@ function PollOptionComponent({
           ref={checkboxRef}
           className="PollNode__optionCheckbox"
           type="checkbox"
-          disabled={!editable && votedUid !== null}
+          disabled={!editable && (votedUid !== null || isSubmitting)}
           onChange={(e) => {
             if (editable) {
               withPollNode((node) => {
@@ -167,6 +169,7 @@ export default function PollComponent({
 
   const { user } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load results and user vote status
   useEffect(() => {
@@ -199,7 +202,7 @@ export default function PollComponent({
   }, [options, pollResults]);
 
   const handleVote = async (optionUid: string) => {
-    if (votedUid || isExpired) return;
+    if (votedUid || isExpired || isSubmitting) return;
 
     if (!user) {
       setIsLoginModalOpen(true);
@@ -207,6 +210,7 @@ export default function PollComponent({
     }
 
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/polls/${pollId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -224,6 +228,8 @@ export default function PollComponent({
       }
     } catch (err) {
       console.error('Failed to submit vote:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -334,6 +340,7 @@ export default function PollComponent({
               onVote={handleVote}
               votedUid={votedUid}
               serverVotes={pollResults?.options[option.uid] || 0}
+              isSubmitting={isSubmitting}
             />
           );
         })}
