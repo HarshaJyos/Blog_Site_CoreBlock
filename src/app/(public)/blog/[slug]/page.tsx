@@ -99,7 +99,7 @@ export default function BlogDetailPage() {
     },
     datePublished: post.publishedAt
       ? new Date(post.publishedAt).toISOString()
-      : new Date(post.createdAt).toISOString(),
+      : new Date(post.publishedAt || post.createdAt).toISOString(),
     dateModified: new Date(post.updatedAt).toISOString(),
     publisher: {
       '@type': 'Organization',

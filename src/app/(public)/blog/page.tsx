@@ -125,7 +125,7 @@ export default function BlogListingPage() {
                   </div>
 
                   <div className="flex items-center gap-3 text-xs text-zinc-500 mb-3">
-                    <span>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     <span className="w-1 h-1 rounded-full bg-zinc-300" />
                     <span>{post.category}</span>
                   </div>

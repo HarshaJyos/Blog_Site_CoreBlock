@@ -126,14 +126,14 @@ export default function AdminDashboard() {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-zinc-900 truncate">{post.title}</p>
                   <p className="text-xs text-zinc-500 mt-0.5">
-                    {post.category} · {new Date(post.createdAt).toLocaleDateString()}
+                    {post.category} · {new Date(post.publishedAt || post.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-3 ml-4">
                   <span
                     className={`px-2.5 py-1 rounded-full text-xs font-medium ${post.status === 'published'
-                        ? 'bg-green-50 text-green-700'
-                        : 'bg-amber-50 text-amber-700'
+                      ? 'bg-green-50 text-green-700'
+                      : 'bg-amber-50 text-amber-700'
                       }`}
                   >
                     {post.status}

@@ -63,7 +63,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex flex-col justify-center">
                   <div className="flex items-center gap-3 text-sm text-zinc-500 mb-4">
-                    <span>{new Date(featuredPost.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span>{new Date(featuredPost.publishedAt || featuredPost.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     <span className="w-1 h-1 rounded-full bg-zinc-300" />
                     <span>{featuredPost.readTime} min read</span>
                   </div>
@@ -116,7 +116,7 @@ export default function HomePage() {
                       )}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-zinc-500 mb-3">
-                      <span>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       <span className="w-1 h-1 rounded-full bg-zinc-300" />
                       <span>{post.category}</span>
                     </div>

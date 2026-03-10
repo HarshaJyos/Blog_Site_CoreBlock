@@ -117,9 +117,13 @@ export async function PUT(
       await syncPolls(sanitizedBody.content);
     }
 
-    // If publishing for the first time
-    if (body.status === 'published' && !(blog.data as any).publishedAt) {
+    // Handle published date
+    if (sanitizedBody.publishedAt) {
+      updateData.publishedAt = new Date(sanitizedBody.publishedAt).getTime();
+    } else if (body.status === 'published' && !(blog.data as any).publishedAt) {
       updateData.publishedAt = Date.now();
+    } else if (sanitizedBody.publishedAt === '') {
+      updateData.publishedAt = null;
     }
 
     // Recalculate read time if content changed

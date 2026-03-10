@@ -40,6 +40,7 @@ export default function NewBlogPage() {
       ogImage: '',
       keywords: [],
     },
+    publishedAt: '',
   });
 
   const [editorContent, setEditorContent] = useState('');
@@ -156,18 +157,16 @@ export default function NewBlogPage() {
             <div key={step} className="flex items-center flex-1 last:flex-none">
               <button
                 onClick={() => index < currentStep && setCurrentStep(index)}
-                className={`flex items-center gap-2 z-10 ${
-                  index <= currentStep ? 'cursor-pointer' : 'cursor-default'
-                }`}
+                className={`flex items-center gap-2 z-10 ${index <= currentStep ? 'cursor-pointer' : 'cursor-default'
+                  }`}
               >
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-smooth ${
-                    index < currentStep
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-smooth ${index < currentStep
                       ? 'bg-green-500 text-white shadow-sm'
                       : index === currentStep
-                      ? 'bg-zinc-900 text-white shadow-md'
-                      : 'bg-slate-100 text-slate-400'
-                  }`}
+                        ? 'bg-zinc-900 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-400'
+                    }`}
                 >
                   {index < currentStep ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,18 +177,16 @@ export default function NewBlogPage() {
                   )}
                 </div>
                 <span
-                  className={`text-sm font-medium hidden sm:block ${
-                    index <= currentStep ? 'text-zinc-900' : 'text-slate-400'
-                  }`}
+                  className={`text-sm font-medium hidden sm:block ${index <= currentStep ? 'text-zinc-900' : 'text-slate-400'
+                    }`}
                 >
                   {step}
                 </span>
               </button>
               {index < STEPS.length - 1 && (
                 <div
-                  className={`flex-1 h-0.5 mx-4 rounded ${
-                    index < currentStep ? 'bg-green-400' : 'bg-slate-200'
-                  }`}
+                  className={`flex-1 h-0.5 mx-4 rounded ${index < currentStep ? 'bg-green-400' : 'bg-slate-200'
+                    }`}
                 />
               )}
             </div>
@@ -298,6 +295,18 @@ export default function NewBlogPage() {
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
+              </div>
+
+              {/* Published Date */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1.5">Publish Date</label>
+                <input
+                  type="datetime-local"
+                  value={formData.publishedAt || ''}
+                  onChange={(e) => setFormData((p) => ({ ...p, publishedAt: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 transition-smooth"
+                />
+                <p className="text-xs text-zinc-500 mt-1">Leave empty to auto-set when published.</p>
               </div>
             </div>
 

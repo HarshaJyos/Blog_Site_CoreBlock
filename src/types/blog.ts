@@ -34,6 +34,7 @@ export interface BlogPostFormData {
   tags: string[];
   status: 'draft' | 'published';
   seo: BlogSEO;
+  publishedAt?: string;
 }
 
 export const BLOG_CATEGORIES = [

@@ -41,6 +41,7 @@ export default function EditBlogPage() {
       ogImage: '',
       keywords: [],
     },
+    publishedAt: '',
   });
 
   const [editorContent, setEditorContent] = useState('');
@@ -72,6 +73,9 @@ export default function EditBlogPage() {
             ogImage: '',
             keywords: [],
           },
+          publishedAt: data.publishedAt
+            ? new Date(data.publishedAt - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+            : '',
         });
         setEditorContent(data.content || '');
       } catch (err) {
@@ -185,17 +189,15 @@ export default function EditBlogPage() {
                 className="flex items-center gap-2 z-10 cursor-pointer"
               >
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-smooth ${
-                    index === currentStep
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-smooth ${index === currentStep
                       ? 'bg-zinc-900 text-white shadow-md'
                       : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                  }`}
+                    }`}
                 >
                   {index + 1}
                 </div>
-                <span className={`text-sm font-medium hidden sm:block ${
-                  index === currentStep ? 'text-zinc-900' : 'text-slate-400'
-                }`}>
+                <span className={`text-sm font-medium hidden sm:block ${index === currentStep ? 'text-zinc-900' : 'text-slate-400'
+                  }`}>
                   {step}
                 </span>
               </button>
@@ -247,7 +249,20 @@ export default function EditBlogPage() {
                   {BLOG_CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
               </div>
+
+              {/* Published Date */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1.5">Publish Date</label>
+                <input
+                  type="datetime-local"
+                  value={formData.publishedAt || ''}
+                  onChange={(e) => setFormData((p) => ({ ...p, publishedAt: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 text-zinc-800 transition-smooth"
+                />
+                <p className="text-xs text-zinc-500 mt-1">Leave empty to auto-set when published.</p>
+              </div>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1.5">Tags</label>
               <div className="flex gap-2 mb-2">

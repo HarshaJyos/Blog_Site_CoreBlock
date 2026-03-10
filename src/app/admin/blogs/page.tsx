@@ -107,7 +107,7 @@ export default function AdminBlogsList() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-zinc-500">
-                      {new Date(post.createdAt).toLocaleDateString('en-US', {
+                      {new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',

@@ -144,7 +144,9 @@ export async function POST(request: NextRequest) {
       readTime,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      publishedAt: body.status === 'published' ? Date.now() : null,
+      publishedAt: body.publishedAt
+        ? new Date(body.publishedAt).getTime()
+        : (body.status === 'published' ? Date.now() : null),
     };
 
     console.log('CREATING NEW BLOG:', slug);
@@ -187,7 +189,7 @@ export async function POST(request: NextRequest) {
 
 
     return NextResponse.json(
-      { id: docRef.id, slug, ...blogData },
+      { id: docRef.id, ...blogData },
       { status: 201 }
     );
   } catch (error: any) {
