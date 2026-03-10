@@ -40,6 +40,8 @@ export default function EditBlogPage() {
       canonicalUrl: '',
       ogImage: '',
       keywords: [],
+      structuredData: '',
+      noIndex: false,
     },
     publishedAt: '',
   });
@@ -72,6 +74,8 @@ export default function EditBlogPage() {
             canonicalUrl: '',
             ogImage: '',
             keywords: [],
+            structuredData: '',
+            noIndex: false,
           },
           publishedAt: data.publishedAt
             ? new Date(data.publishedAt - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
@@ -190,8 +194,8 @@ export default function EditBlogPage() {
               >
                 <div
                   className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-smooth ${index === currentStep
-                      ? 'bg-zinc-900 text-white shadow-md'
-                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                    ? 'bg-zinc-900 text-white shadow-md'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                     }`}
                 >
                   {index + 1}
@@ -325,6 +329,41 @@ export default function EditBlogPage() {
                   ))}
                 </div>
               )}
+            </div>
+
+            <div className="pt-4 border-t border-slate-100">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={formData.seo.noIndex}
+                    onChange={(e) => setFormData(p => ({ ...p, seo: { ...p.seo, noIndex: e.target.checked } }))}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-zinc-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-zinc-900"></div>
+                </div>
+                <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900 transition-colors">Hide from search engines (noindex)</span>
+              </label>
+              <p className="text-xs text-zinc-400 mt-2 ml-14">Check this if you don't want this post to appear in Google search results.</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 mb-1.5 flex items-center gap-2">
+                Custom Structured Data (JSON-LD)
+                <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Advanced</span>
+              </label>
+              <textarea
+                value={formData.seo.structuredData}
+                onChange={(e) =>
+                  setFormData((p) => ({ ...p, seo: { ...p.seo, structuredData: e.target.value } }))
+                }
+                placeholder='{ "@context": "https://schema.org", "@type": "TechArticle", ... }'
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth font-mono text-xs"
+              />
+              <p className="text-xs text-zinc-400 mt-1">
+                Optional: Override the default BlogPosting schema with your own custom JSON-LD.
+              </p>
             </div>
             <div className="bg-slate-50 rounded-xl p-5 border border-slate-200 mt-6">
               <h3 className="text-sm font-semibold text-zinc-700 mb-3">Search Preview</h3>

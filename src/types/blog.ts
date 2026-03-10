@@ -4,6 +4,8 @@ export interface BlogSEO {
   canonicalUrl: string;
   ogImage: string;
   keywords: string[];
+  structuredData?: string;
+  noIndex?: boolean;
 }
 
 export interface BlogPost {
