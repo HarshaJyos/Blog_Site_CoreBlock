@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     keywords: seo.keywords || post.tags || [],
     robots: seo.noIndex ? 'noindex, nofollow' : 'index, follow',
     alternates: {
-      canonical: seo.canonicalUrl || `https://coreblock.app/blog/${post.slug}`,
+      canonical: seo.canonicalUrl || `https://coreblock.in/blog/${post.slug}`,
     },
     openGraph: {
       title,
@@ -74,12 +74,12 @@ export default async function BlogDetailPage({ params }: { params: { slug: strin
       "author": {
         "@type": "Person",
         "name": post.author,
-        "url": "https://coreblock.app"
+        "url": "https://coreblock.in"
       },
       "description": post.excerpt,
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": `https://coreblock.app/blog/${post.slug}`
+        "@id": `https://coreblock.in/blog/${post.slug}`
       }
     };
 

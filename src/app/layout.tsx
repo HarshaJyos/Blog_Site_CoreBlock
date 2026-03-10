@@ -4,7 +4,7 @@ import "../package/index.css";
 import { AuthProvider } from "@/components/AuthContext";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://coreblock.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://coreblock.in'),
   title: {
     default: "CoreBlock — AI, Agents & Tech by Hanish Jyosyabhatla",
     template: "%s | CoreBlock",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "Software Development",
     "Hanish Jyosyabhatla Blog"
   ],
-  authors: [{ name: "Hanish Jyosyabhatla", url: "https://coreblock.app" }],
+  authors: [{ name: "Hanish Jyosyabhatla", url: "https://coreblock.in" }],
   creator: "Hanish Jyosyabhatla",
   publisher: "Hanish Jyosyabhatla",
   openGraph: {
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CoreBlock — AI, Agents & Tech by Hanish Jyosyabhatla",
     description: "Insights into AI and the future of tech by Hanish Jyosyabhatla.",
-    creator: "@hanish_j", // Replace with actual handle if available
+    creator: "@hanish_963", // Replace with actual handle if available
   },
   robots: {
     index: true,
@@ -64,7 +64,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   "name": "Hanish Jyosyabhatla",
-  "url": "https://coreblock.app",
+  "url": "https://coreblock.in",
   "jobTitle": "Software Developer & Tech Writer",
   "description": "Developer and creator of CoreBlock, writing about AI, agents, and web development.",
   "sameAs": [
