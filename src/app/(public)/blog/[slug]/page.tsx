@@ -8,7 +8,7 @@ import { Suspense } from 'react';
 
 async function getPost(slug: string): Promise<BlogPost | null> {
   try {
-    const q = query(collection(db, 'blogs'), where('slug', '==', slug));
+    const q = query(collection(db, 'blogs'), where('slug', '==', slug), where('status', '==', 'published'));
     const snapshot = await getDocs(q);
     if (snapshot.empty) return null;
     const doc = snapshot.docs[0];

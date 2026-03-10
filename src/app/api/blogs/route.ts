@@ -67,7 +67,13 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const lastDocId = searchParams.get('lastDocId');
 
-    let q = query(collection(db, 'blogs'));
+    let q;
+    if (status) {
+      q = query(collection(db, 'blogs'), where('status', '==', status));
+    } else {
+      // Default to published to satisfy security rules for unauthenticated requests
+      q = query(collection(db, 'blogs'), where('status', '==', 'published'));
+    }
 
     const snapshot = await getDocs(q);
     let blogs: BlogPost[] = [];

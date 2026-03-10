@@ -53,8 +53,13 @@ async function syncPolls(content: string) {
 }
 
 // Helper: find blog document by slug
-async function findBlogBySlug(slug: string) {
-  const q = query(collection(db, 'blogs'), where('slug', '==', slug));
+async function findBlogBySlug(slug: string, requirePublished: boolean = true) {
+  let q;
+  if (requirePublished) {
+    q = query(collection(db, 'blogs'), where('slug', '==', slug), where('status', '==', 'published'));
+  } else {
+    q = query(collection(db, 'blogs'), where('slug', '==', slug));
+  }
   const snapshot = await getDocs(q);
   if (snapshot.empty) return null;
   const blogDoc = snapshot.docs[0];
