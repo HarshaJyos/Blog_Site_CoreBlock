@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, Suspense } from 'react';
 import { BLOG_CATEGORIES, type BlogPost } from '@/types/blog';
 
-export default function BlogListingPage() {
+function BlogListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -334,5 +334,17 @@ export default function BlogListingPage() {
         )}
       </section>
     </div>
+  );
+}
+
+export default function BlogListingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white py-24 px-4">
+        <div className="max-w-5xl mx-auto animate-pulse bg-zinc-50 rounded-3xl h-[600px]"></div>
+      </div>
+    }>
+      <BlogListingContent />
+    </Suspense>
   );
 }

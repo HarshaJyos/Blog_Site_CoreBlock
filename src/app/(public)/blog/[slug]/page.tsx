@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/components/AuthContext';
@@ -22,7 +22,7 @@ const ReadOnlyEditor = dynamic(() => import('@/components/ReadOnlyEditor'), {
   ),
 });
 
-export default function BlogDetailPage() {
+function BlogDetailContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const [post, setPost] = useState<BlogPost | null>(null);
@@ -254,8 +254,8 @@ export default function BlogDetailPage() {
         <article className="lg:col-span-9 animate-fade-in w-full">
           {/* Header & Hero */}
           {post.coverImage ? (
-            <header className="mb-2 w-full">
-              <div className="relative rounded-2xl overflow-hidden bg-zinc-900 aspect-[21/9] border border-zinc-200/50 shadow-sm group w-full min-w-full">
+            <header className="mb-12 w-full">
+              <div className="relative rounded-3xl overflow-hidden bg-zinc-900 aspect-[21/9] border border-zinc-200/50 shadow-sm group w-full min-w-full">
                 <img src={post.coverImage} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" alt={post.title} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-end">
@@ -268,7 +268,7 @@ export default function BlogDetailPage() {
               </div>
             </header>
           ) : (
-            <header className="mb-2 max-w-full">
+            <header className="mb-14 max-w-4xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-zinc-950 tracking-tight leading-tight">
                 {post.title}
               </h1>
@@ -277,7 +277,7 @@ export default function BlogDetailPage() {
 
           {/* Intro Text */}
           {post.excerpt && (
-            <p className="text-xl md:text-2xl text-zinc-600 leading-relaxed font-normal mb-2 border-l-4 border-zinc-950 pl-8 max-w-4xl">
+            <p className="text-xl md:text-2xl text-zinc-600 leading-relaxed font-normal mb-16 border-l-4 border-zinc-950 pl-8 max-w-4xl">
               {post.excerpt}
             </p>
           )}
@@ -354,5 +354,24 @@ export default function BlogDetailPage() {
         subtitle="Join CoreBlock to save and like your favorite articles."
       />
     </div>
+  );
+}
+
+export default function BlogDetailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white pt-24 pb-20 px-4">
+        <div className="max-w-3xl mx-auto animate-pulse">
+          <div className="h-10 bg-zinc-100 rounded-md w-3/4 mb-6"></div>
+          <div className="flex gap-4 mb-12">
+            <div className="h-4 bg-zinc-100 rounded w-24"></div>
+            <div className="h-4 bg-zinc-100 rounded w-24"></div>
+          </div>
+          <div className="aspect-[2/1] bg-zinc-100 rounded-xl mb-16"></div>
+        </div>
+      </div>
+    }>
+      <BlogDetailContent />
+    </Suspense>
   );
 }
