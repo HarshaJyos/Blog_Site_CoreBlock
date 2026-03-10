@@ -186,7 +186,7 @@ export default function BlogDetailPage() {
       <div className="max-w-4xl mx-auto ">
         {/* Combined Header & Hero Banner */}
         {post.coverImage ? (
-          <header className="relative mb-16 rounded-2xl overflow-hidden bg-zinc-900 aspect-[4/3] sm:aspect-[2/1] md:aspect-[21/9] border border-zinc-200/50 shadow-sm">
+          <header className="relative mb-2 rounded-2xl overflow-hidden bg-zinc-900 aspect-[4/3] sm:aspect-[2/1] md:aspect-[21/9] border border-zinc-200/50 shadow-sm">
             <img src={post.coverImage} className="absolute inset-0 w-full h-full object-cover opacity-60" alt={post.title} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -218,7 +218,7 @@ export default function BlogDetailPage() {
 
         {/* Content container */}
         {post.excerpt && (
-          <p className="text-xl md:text-2xl text-zinc-600 leading-relaxed font-normal mb-4">
+          <p className="text-md md:text-lg text-zinc-600 leading-relaxed font-normal">
             {post.excerpt}
           </p>
         )}

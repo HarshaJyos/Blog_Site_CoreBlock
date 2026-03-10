@@ -8,6 +8,11 @@ export default function HomePage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Newsletter state
+  const [email, setEmail] = useState('');
+  const [subscribeStatus, setSubscribeStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [subscribeMessage, setSubscribeMessage] = useState('');
+
   useEffect(() => {
     async function fetchPosts() {
       try {
@@ -22,6 +27,41 @@ export default function HomePage() {
     }
     fetchPosts();
   }, []);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setSubscribeStatus('loading');
+    setSubscribeMessage('');
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSubscribeStatus('success');
+        setSubscribeMessage('Thank you for subscribing!');
+        setEmail('');
+      } else {
+        setSubscribeStatus('error');
+        setSubscribeMessage(data.error || 'Failed to subscribe. Please try again.');
+
+        // Handle rate limit visually
+        if (res.status === 429) {
+          setSubscribeMessage(data.error);
+        }
+      }
+    } catch (err) {
+      setSubscribeStatus('error');
+      setSubscribeMessage('An unexpected error occurred.');
+    }
+  };
 
   const featuredPost = posts[0];
   const recentPosts = posts.slice(1);
@@ -40,9 +80,9 @@ export default function HomePage() {
           <Link href="/blog" className="px-6 py-2.5 bg-zinc-950 text-white text-sm font-medium rounded-md hover:bg-zinc-800 transition-colors">
             Read the Journal
           </Link>
-          <Link href="/admin/blogs/new" className="px-6 py-2.5 bg-white text-zinc-950 text-sm font-medium rounded-md border border-zinc-200 hover:bg-zinc-50 transition-colors">
-            Start Writing
-          </Link>
+          <a href="#newsletter" className="px-6 py-2.5 bg-white text-zinc-950 text-sm font-medium rounded-md border border-zinc-200 hover:bg-zinc-50 transition-colors">
+            Subscribe to Newsletter
+          </a>
         </div>
       </section>
 
@@ -161,14 +201,49 @@ export default function HomePage() {
         </section>
       </div>
 
-      {/* Clean Light CTA */}
-      <section className="bg-zinc-50 border-t border-zinc-200/50 py-24 px-4 sm:px-6 lg:px-8 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl font-semibold text-zinc-950 tracking-tight mb-4">Start publishing today.</h2>
-          <p className="text-lg text-zinc-500 mb-8">Join the platform and share your knowledge with a community of builders.</p>
-          <Link href="/admin/blogs/new" className="inline-flex items-center justify-center px-6 py-2.5 bg-zinc-950 text-white text-sm font-medium rounded-md hover:bg-zinc-800 transition-colors">
-            Create an Entry
-          </Link>
+      {/* Newsletter Section */}
+      <section id="newsletter" className="bg-zinc-50 border-t border-zinc-200/50 py-24 px-4 sm:px-6 lg:px-8 text-center scroll-mt-0">
+        <div className="max-w-xl mx-auto">
+          <h2 className="text-3xl font-semibold text-zinc-950 tracking-tight mb-4">Subscribe to our Newsletter</h2>
+          <p className="text-lg text-zinc-500 mb-8">Get the latest articles, tutorials, and insights delivered straight to your inbox.</p>
+
+          <form onSubmit={handleSubscribe} className="max-w-md mx-auto relative">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                className="flex-1 px-4 py-3 bg-white border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:border-transparent text-sm"
+                disabled={subscribeStatus === 'loading' || subscribeStatus === 'success'}
+              />
+              <button
+                type="submit"
+                disabled={subscribeStatus === 'loading' || subscribeStatus === 'success'}
+                className="inline-flex items-center justify-center px-6 py-3 bg-zinc-950 text-white text-sm font-medium rounded-md hover:bg-zinc-800 transition-colors disabled:opacity-75 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {subscribeStatus === 'loading' ? (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : subscribeStatus === 'success' ? (
+                  'Subscribed ✓'
+                ) : (
+                  'Subscribe'
+                )}
+              </button>
+            </div>
+
+            {/* Status Message Area */}
+            {subscribeMessage && (
+              <p className={`absolute -bottom-8 left-0 right-0 text-sm font-medium ${subscribeStatus === 'success' ? 'text-green-600' : 'text-red-500'
+                }`}>
+                {subscribeMessage}
+              </p>
+            )}
+          </form>
         </div>
       </section>
     </div>
