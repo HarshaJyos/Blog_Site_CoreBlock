@@ -89,7 +89,10 @@ export async function POST(
             const voteSnap = await getDoc(voteDocRef);
 
             if (voteSnap.exists()) {
-                return NextResponse.json({ error: 'User has already voted' }, { status: 403 });
+                return NextResponse.json({
+                    error: 'User has already voted',
+                    userVote: voteSnap.data().optionUid
+                }, { status: 403 });
             }
 
             if (!docSnap.exists()) {
@@ -114,6 +117,8 @@ export async function POST(
             // Record the user's vote
             await setDoc(voteDocRef, {
                 optionUid,
+                userId,
+                pollId: id,
                 timestamp: serverTimestamp(),
             });
 

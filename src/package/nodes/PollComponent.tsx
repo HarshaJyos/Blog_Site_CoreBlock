@@ -189,6 +189,8 @@ export default function PollComponent({
             setPollResults(data);
             if (data.userVote) {
               setVotedUid(data.userVote);
+            } else {
+              setVotedUid(null); // Clear vote if user hasn't voted or logged out
             }
           }
         })
@@ -224,7 +226,10 @@ export default function PollComponent({
       } else if (response.status === 403) {
         const data = await response.json();
         if (data.expired) setIsExpired(true);
-        if (data.error === 'User has already voted') setVotedUid(optionUid);
+        if (data.error === 'User has already voted') {
+          // If server returned their actual vote, use it, otherwise fallback to the option they clicked
+          setVotedUid(data.userVote || optionUid);
+        }
       }
     } catch (err) {
       console.error('Failed to submit vote:', err);

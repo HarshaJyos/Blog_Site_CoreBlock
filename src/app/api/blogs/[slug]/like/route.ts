@@ -37,15 +37,27 @@ export async function POST(
         // If client provides intent 'like' or 'unlike', we force it. Otherwise we toggle based on DB.
         // For simplicity, we assume client sends "action": "like" | "unlike"
 
+        const likeSnap = await getDoc(likeRef);
+
         if (action === 'like') {
-            await setDoc(likeRef, { createdAt: Date.now() });
-            await updateDoc(blogRef, { likes: increment(1) });
+            if (!likeSnap.exists()) {
+                await setDoc(likeRef, {
+                    createdAt: Date.now(),
+                    userId,
+                    blogId: blogDoc.id,
+                    slug: params.slug
+                });
+                await updateDoc(blogRef, { likes: increment(1) });
+            }
             return NextResponse.json({ success: true, liked: true });
         } else if (action === 'unlike') {
-            await deleteDoc(likeRef);
-            // To prevent negative likes just in case
-            const currentLikes = blogDoc.data().likes || 0;
-            await updateDoc(blogRef, { likes: currentLikes > 0 ? increment(-1) : 0 });
+            if (likeSnap.exists()) {
+                await deleteDoc(likeRef);
+                // To prevent negative likes just in case
+                const currentLikes = blogDoc.data().likes || 0;
+                await updateDoc(blogRef, { likes: currentLikes > 0 ? increment(-1) : 0 });
+            }
+
             return NextResponse.json({ success: true, liked: false });
         }
 

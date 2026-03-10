@@ -68,7 +68,10 @@ export default function BlogDetailPage() {
     }
 
     async function checkLikeStatus() {
-      if (!user || !params.slug) return;
+      if (!user || !params.slug) {
+        setIsLiked(false);
+        return;
+      }
       try {
         const res = await fetch(`/api/blogs/${params.slug}/like?userId=${user.uid}`);
         if (res.ok) {
