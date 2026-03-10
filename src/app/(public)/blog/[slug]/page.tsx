@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useSearchParams, useParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/components/AuthContext';
@@ -24,11 +24,16 @@ const ReadOnlyEditor = dynamic(() => import('@/components/ReadOnlyEditor'), {
 
 export default function BlogDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const [post, setPost] = useState<BlogPost | null>(null);
-  const [prevPost, setPrevPost] = useState<BlogPost | null>(null);
-  const [nextPost, setNextPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Sidebar State
+  const [sidebarPosts, setSidebarPosts] = useState<BlogPost[]>([]);
+  const [sidebarPage, setSidebarPage] = useState(parseInt(searchParams.get('page') || '1'));
+  const [sidebarTotalPages, setSidebarTotalPages] = useState(1);
+  const [sidebarLoading, setSidebarLoading] = useState(false);
 
   // Likes & Auth
   const { user } = useAuth();
@@ -37,6 +42,7 @@ export default function BlogDetailPage() {
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  // Fetch Main Post
   useEffect(() => {
     async function fetchPost() {
       try {
@@ -48,18 +54,6 @@ export default function BlogDetailPage() {
         const data = await res.json();
         setPost(data);
         setLikeCount(data.likes || 0);
-
-        // Fetch prev/next posts
-        const listRes = await fetch(`/api/blogs?status=published&pageSize=100`);
-        if (listRes.ok) {
-          const listData = await listRes.json();
-          const allBlogs = listData.blogs || [];
-          const currentIndex = allBlogs.findIndex((b: BlogPost) => b.slug === params.slug);
-          if (currentIndex !== -1) {
-            setNextPost(currentIndex > 0 ? allBlogs[currentIndex - 1] : null);
-            setPrevPost(currentIndex < allBlogs.length - 1 ? allBlogs[currentIndex + 1] : null);
-          }
-        }
       } catch (err) {
         setError('Failed to load post');
       } finally {
@@ -89,6 +83,26 @@ export default function BlogDetailPage() {
     }
   }, [params.slug, user]);
 
+  // Fetch Sidebar Posts
+  useEffect(() => {
+    async function fetchSidebarPosts() {
+      setSidebarLoading(true);
+      try {
+        const res = await fetch(`/api/blogs?status=published&pageSize=9&page=${sidebarPage}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSidebarPosts(data.blogs || []);
+          setSidebarTotalPages(data.totalPages || 1);
+        }
+      } catch (err) {
+        console.error('Failed to fetch sidebar posts', err);
+      } finally {
+        setSidebarLoading(false);
+      }
+    }
+    fetchSidebarPosts();
+  }, [sidebarPage]);
+
   const handleToggleLike = async () => {
     if (!user) {
       setShowLoginModal(true);
@@ -99,8 +113,6 @@ export default function BlogDetailPage() {
     try {
       setIsLikeLoading(true);
       const action = isLiked ? 'unlike' : 'like';
-
-      // Optimistic update
       setIsLiked(!isLiked);
       setLikeCount(prev => action === 'like' ? prev + 1 : Math.max(0, prev - 1));
 
@@ -111,7 +123,6 @@ export default function BlogDetailPage() {
       });
 
       if (!res.ok) {
-        // Revert optimistic update on failure
         setIsLiked(isLiked);
         setLikeCount(prev => action === 'like' ? prev - 1 : prev + 1);
         throw new Error('Failed to toggle like');
@@ -150,178 +161,198 @@ export default function BlogDetailPage() {
     );
   }
 
-  // JSON-LD structured data
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: post.seo?.metaTitle || post.title,
-    description: post.seo?.metaDescription || post.excerpt,
-    image: post.coverImage || post.seo?.ogImage,
-    author: {
-      '@type': 'Person',
-      name: post.author,
-    },
-    datePublished: post.publishedAt
-      ? new Date(post.publishedAt).toISOString()
-      : new Date(post.publishedAt || post.createdAt).toISOString(),
-    dateModified: new Date(post.updatedAt).toISOString(),
-    publisher: {
-      '@type': 'Organization',
-      name: 'CoreBlock',
-    },
-  };
-
   const publishDate = new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', {
     month: 'long', day: 'numeric', year: 'numeric'
   });
 
   return (
-    <article className="animate-fade-in bg-white min-h-screen pb-10">
-      {/* JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <div className="bg-white min-h-screen">
+      <div className="w-full mx-auto px-4 sm:px-8 lg:px-12 py-10 lg:py-20 lg:grid lg:grid-cols-12 lg:gap-10">
 
-      <div className="max-w-4xl mx-auto ">
-        {/* Combined Header & Hero Banner */}
-        {post.coverImage ? (
-          <header className="relative mb-2 rounded-2xl overflow-hidden bg-zinc-900 aspect-[4/3] sm:aspect-[2/1] md:aspect-[21/9] border border-zinc-200/50 shadow-sm">
-            <img src={post.coverImage} className="absolute inset-0 w-full h-full object-cover opacity-60" alt={post.title} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-            <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between">
-              <div>
-                <Link href="/blog" className="inline-flex items-center text-sm font-medium text-white/70 hover:text-white transition-colors">
-                  ← Back to Journal
-                </Link>
+        {/* Sidebar - Hidden on mobile */}
+        <aside className="hidden lg:block lg:col-span-3">
+          <div className="sticky top-28 space-y-8">
+            <div className="flex flex-col h-[600px] border border-zinc-200 rounded-2xl bg-zinc-50/30 overflow-hidden shadow-sm">
+              <div className="p-6 border-b border-zinc-200 bg-white">
+                <h2 className="text-xs font-bold text-zinc-400 uppercase tracking-[0.2em]">Latest Articles</h2>
               </div>
-              <div>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-white tracking-tight leading-tight drop-shadow-md">
-                  {post.title}
-                </h1>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {sidebarLoading ? (
+                  [...Array(6)].map((_, i) => (
+                    <div key={i} className="h-14 bg-zinc-100 animate-pulse rounded-xl"></div>
+                  ))
+                ) : (
+                  sidebarPosts.map((sPost) => (
+                    <Link
+                      key={sPost.id}
+                      href={`/blog/${sPost.slug}${sidebarPage > 1 ? `?page=${sidebarPage}` : ''}`}
+                      className={`block p-4 rounded-xl transition-all border ${sPost.slug === params.slug
+                        ? 'bg-zinc-950 border-zinc-950 text-white shadow-md'
+                        : 'bg-white border-zinc-200 text-zinc-900 hover:border-zinc-300 hover:shadow-sm'
+                        }`}
+                    >
+                      <h3 className="text-sm font-bold uppercase tracking-tight line-clamp-2 leading-snug">
+                        {sPost.title}
+                      </h3>
+                    </Link>
+                  ))
+                )}
               </div>
-            </div>
-          </header>
-        ) : (
-          <header className="mb-14">
-            <div className="mb-10">
-              <Link href="/blog" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-950 transition-colors">
-                ← Back to Journal
-              </Link>
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-zinc-950 tracking-tight leading-tight">
-              {post.title}
-            </h1>
-          </header>
-        )}
 
-        {/* Content container */}
-        {post.excerpt && (
-          <p className="text-md md:text-lg text-zinc-600 leading-relaxed font-normal">
-            {post.excerpt}
-          </p>
-        )}
+              {/* Sidebar Pagination */}
+              <div className="p-4 border-t border-zinc-200 bg-white flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setSidebarPage(prev => Math.max(1, prev - 1))}
+                    disabled={sidebarPage === 1 || sidebarLoading}
+                    className="p-1.5 rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-50 disabled:opacity-30 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+                  </button>
 
-        <div className="prose-clean">
-          {post.content ? (
-            <ReadOnlyEditor content={post.content} />
-          ) : (
-            <div className="py-20 text-center">
-              <p className="text-zinc-500 text-lg">This article has no content yet.</p>
-            </div>
-          )}
-        </div>
+                  <div className="flex gap-1">
+                    {[...Array(sidebarTotalPages)].map((_, i) => {
+                      const p = i + 1;
+                      if (p > 3 && p < sidebarTotalPages) return null;
+                      if (p === 3 && sidebarTotalPages > 4) return <span key="dots" className="text-zinc-300">.</span>;
 
-        {/* Post Metadata & Tags */}
-        <div className="mt-16 pt-8 border-t border-zinc-100">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 font-semibold text-lg shrink-0">
-                {post.author.charAt(0)}
-              </div>
-              <div>
-                <p className="text-base font-semibold text-zinc-900">{post.author}</p>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm text-zinc-500 mt-1">
-                  <time dateTime={new Date(post.publishedAt || post.createdAt).toISOString()}>{publishDate}</time>
-                  <span className="w-1 h-1 rounded-full bg-zinc-300 hidden sm:inline-block" />
-                  <span className="hidden sm:inline-block">{post.readTime} min read</span>
-                  <span className="w-1 h-1 rounded-full bg-zinc-300" />
-                  <span>{post.category}</span>
+                      return (
+                        <button
+                          key={p}
+                          onClick={() => setSidebarPage(p)}
+                          className={`w-8 h-8 rounded-lg text-xs font-bold transition-all border ${sidebarPage === p
+                            ? 'bg-zinc-950 border-zinc-950 text-white'
+                            : 'bg-white border-zinc-200 text-zinc-500 hover:border-zinc-300'
+                            }`}
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => setSidebarPage(prev => Math.min(sidebarTotalPages, prev + 1))}
+                    disabled={sidebarPage === sidebarTotalPages || sidebarLoading}
+                    className="p-1.5 rounded-lg border border-zinc-200 text-zinc-600 hover:bg-zinc-50 disabled:opacity-30 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Dynamic Like Button (Small) */}
-            <div className="flex items-center gap-3 sm:pl-6 sm:border-l border-zinc-100">
-              <button
-                onClick={handleToggleLike}
-                disabled={isLikeLoading}
-                className={`group flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 shadow-sm border disabled:opacity-50 disabled:cursor-not-allowed ${isLiked
-                  ? 'bg-red-50 border-red-200 text-red-500 shadow-red-100'
-                  : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300 hover:bg-zinc-50'
-                  }`}
-                title={isLiked ? "Unlike this article" : "Like this article"}
-              >
-                <svg
-                  className={`w-5 h-5 transition-transform duration-300 ${isLiked ? 'scale-110 drop-shadow-sm' : 'group-hover:scale-110'}`}
-                  viewBox="0 0 24 24"
-                  fill={isLiked ? "currentColor" : "none"}
-                  stroke="currentColor"
-                  strokeWidth={isLiked ? "1.5" : "2"}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </button>
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-zinc-900 leading-none">{likeCount}</span>
-                <span className="text-xs text-zinc-500 mt-0.5">{likeCount === 1 ? 'Like' : 'Likes'}</span>
-              </div>
-            </div>
+            <Link href="/blog" className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-widest hover:text-zinc-950 transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+              View Full Archive
+            </Link>
           </div>
+        </aside>
 
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-12">
-              <span className="text-sm text-zinc-400 mr-2 flex items-center">Tagged in:</span>
-              {post.tags.map(tag => (
-                <span key={tag} className="px-3 py-1 bg-zinc-100 text-zinc-600 rounded-md text-xs font-medium">
-                  {tag}
-                </span>
-              ))}
-            </div>
+        {/* Main Content Area */}
+        <article className="lg:col-span-9 animate-fade-in w-full">
+          {/* Header & Hero */}
+          {post.coverImage ? (
+            <header className="mb-2 w-full">
+              <div className="relative rounded-2xl overflow-hidden bg-zinc-900 aspect-[21/9] border border-zinc-200/50 shadow-sm group w-full min-w-full">
+                <img src={post.coverImage} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" alt={post.title} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-end">
+                  <div className="max-w-4xl">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-regular text-white tracking-tight leading-tight drop-shadow-md">
+                      {post.title}
+                    </h1>
+                  </div>
+                </div>
+              </div>
+            </header>
+          ) : (
+            <header className="mb-2 max-w-full">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-zinc-950 tracking-tight leading-tight">
+                {post.title}
+              </h1>
+            </header>
           )}
 
-        </div>
+          {/* Intro Text */}
+          {post.excerpt && (
+            <p className="text-xl md:text-2xl text-zinc-600 leading-relaxed font-normal mb-2 border-l-4 border-zinc-950 pl-8 max-w-4xl">
+              {post.excerpt}
+            </p>
+          )}
 
-        {/* Minimalist Post Navigation */}
-        <div className="mt-24 pt-8 border-t border-zinc-200/50 flex flex-col sm:flex-row justify-between gap-8">
-          {prevPost ? (
-            <Link href={`/blog/${prevPost.slug}`} className="group flex flex-col max-w-[50%]">
-              <span className="text-xs font-medium text-zinc-500 mb-2">Previous</span>
-              <span className="text-base font-semibold text-zinc-900 group-hover:text-zinc-600 transition-colors line-clamp-2">
-                {prevPost.title}
-              </span>
-            </Link>
-          ) : <div className="max-w-[50%]" />}
+          {/* Body Content */}
+          <div className="prose-clean mb-20 max-w-4xl">
+            {post.content ? (
+              <ReadOnlyEditor content={post.content} />
+            ) : (
+              <div className="py-20 text-center bg-zinc-50 rounded-3xl border border-dashed border-zinc-200">
+                <p className="text-zinc-500 text-lg">This article has no content yet.</p>
+              </div>
+            )}
+          </div>
 
-          {nextPost ? (
-            <Link href={`/blog/${nextPost.slug}`} className="group flex flex-col max-w-[50%] text-right sm:items-end">
-              <span className="text-xs font-medium text-zinc-500 mb-2">Next</span>
-              <span className="text-base font-semibold text-zinc-900 group-hover:text-zinc-600 transition-colors line-clamp-2">
-                {nextPost.title}
-              </span>
-            </Link>
-          ) : <div className="max-w-[50%]" />}
-        </div>
+          {/* Footer Metadata */}
+          <footer className="pt-12 border-t border-zinc-100 space-y-12 max-w-4xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-full bg-zinc-950 text-white flex items-center justify-center font-bold text-xl shadow-lg ring-4 ring-zinc-50">
+                  {post.author.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-zinc-950 leading-tight">{post.author}</p>
+                  <div className="flex items-center gap-3 text-sm text-zinc-500 mt-1.5 font-medium">
+                    <time dateTime={new Date(post.publishedAt || post.createdAt).toISOString()}>{publishDate}</time>
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-200" />
+                    <span>{post.readTime} min read</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-200" />
+                    <span className="text-zinc-950 font-bold">{post.category}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Like Component */}
+              <div className="flex items-center gap-4 bg-zinc-50 px-6 py-3 rounded-2xl border border-zinc-200/60 self-start sm:self-center">
+                <button
+                  onClick={handleToggleLike}
+                  disabled={isLikeLoading}
+                  className={`group flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 border shadow-sm ${isLiked
+                    ? 'bg-rose-500 border-rose-500 text-white shadow-rose-200'
+                    : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300'
+                    }`}
+                >
+                  <svg className={`w-6 h-6 ${isLiked ? 'fill-current' : 'fill-none'} transition-transform group-hover:scale-110`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </button>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-zinc-950 leading-none">{likeCount}</span>
+                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest mt-1">Appreciation</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tags */}
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2.5">
+                {post.tags.map(tag => (
+                  <span key={tag} className="px-4 py-2 bg-zinc-100 text-zinc-600 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-colors cursor-default">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </footer>
+        </article>
       </div>
 
-      {/* Login Modal */}
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         title="Sign in to Like"
         subtitle="Join CoreBlock to save and like your favorite articles."
       />
-    </article>
+    </div>
   );
 }
