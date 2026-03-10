@@ -134,7 +134,15 @@ body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   white-space: nowrap;
-  /* Prevent squishing text in cells before scrolling */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+}
+
+.blog-content table::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, and Opera */
 }
 
 /* Ensure parents containing code/tables do not exceed screen bounds */
