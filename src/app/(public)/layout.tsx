@@ -181,13 +181,14 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Info */}
+          {/* Legal & Info */}
           <div>
-            <h3 className="text-zinc-950 font-medium text-sm mb-4">Technology</h3>
+            <h3 className="text-zinc-950 font-medium text-sm mb-4">Legal & Info</h3>
             <ul className="space-y-3">
-              <li className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors cursor-default">Next.js</li>
-              <li className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors cursor-default">Lexical</li>
-              <li className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors cursor-default">Firebase</li>
+              <li><Link href="/about" className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors">About Us</Link></li>
+              <li><Link href="/privacy" className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors">Terms & Conditions</Link></li>
+              <li><Link href="/contact" className="text-zinc-500 text-sm hover:text-zinc-950 transition-colors">Contact</Link></li>
             </ul>
           </div>
         </div>
