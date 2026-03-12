@@ -4,6 +4,8 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { BLOG_CATEGORIES, type BlogPostFormData, type BlogSEO } from '@/types/blog';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, doc, setDoc, getDoc } from 'firebase/firestore';
 
 const LexicalEditorStep = dynamic(() => import('@/components/AdminEditor'), {
   ssr: false,
@@ -121,29 +123,83 @@ export default function NewBlogPage() {
     setSaving(true);
     setError('');
     try {
-      const res = await fetch('/api/blogs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          content: editorContent,
-          status,
-          seo: {
-            ...formData.seo,
-            metaTitle: formData.seo.metaTitle || formData.title,
-            metaDescription: formData.seo.metaDescription || formData.excerpt,
-            ogImage: formData.seo.ogImage || formData.coverImage,
-          },
-        }),
-      });
+      const syncPolls = async (content: string) => {
+        try {
+          const contentJson = JSON.parse(content);
+          const polls: any[] = [];
+      
+          const findPolls = (nodes: any[]) => {
+            for (const node of nodes) {
+              if (node.type === 'poll') {
+                polls.push(node);
+              }
+              if (node.children) findPolls(node.children);
+            }
+          };
+      
+          if (contentJson.root && contentJson.root.children) {
+            findPolls(contentJson.root.children);
+          }
+      
+          for (const poll of polls) {
+            const pollRef = doc(db, 'polls', poll.pollId);
+            const pollSnap = await getDoc(pollRef);
+      
+            if (!pollSnap.exists()) {
+              console.log('SYNC: Creating missing poll in Firestore:', poll.pollId);
+              await setDoc(pollRef, {
+                question: poll.question,
+                options: {},
+                totalVotes: 0,
+                createdAt: poll.createdAt || Date.now(),
+                lastSyncAt: Date.now(),
+              });
+            }
+          }
+        } catch (e) {
+          console.error('Error syncing polls:', e);
+        }
+      };
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Failed to save');
+      const wordCount = (editorContent || '').split(/\s+/).length;
+      const readTime = Math.max(1, Math.ceil(wordCount / 200));
+
+      const blogData = {
+        title: formData.title,
+        slug: formData.slug,
+        excerpt: formData.excerpt,
+        content: editorContent,
+        coverImage: formData.coverImage,
+        author: formData.author,
+        category: formData.category,
+        tags: formData.tags,
+        status,
+        seo: {
+          ...formData.seo,
+          metaTitle: formData.seo.metaTitle || formData.title,
+          metaDescription: formData.seo.metaDescription || formData.excerpt,
+          ogImage: formData.seo.ogImage || formData.coverImage,
+        },
+        readTime,
+        views: 0,
+        likes: 0,
+        commentCount: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        publishedAt: formData.publishedAt
+          ? new Date(formData.publishedAt).getTime()
+          : (status === 'published' ? Date.now() : null),
+      };
+
+      await addDoc(collection(db, 'blogs'), blogData);
+      
+      if (editorContent) {
+        await syncPolls(editorContent);
       }
 
       router.push('/admin/blogs');
     } catch (err: any) {
+      console.error('Error saving blog:', err);
       setError(err.message || 'Failed to save blog post');
     } finally {
       setSaving(false);
