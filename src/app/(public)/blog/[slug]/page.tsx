@@ -6,6 +6,8 @@ import BlogDetailContent from '@/components/BlogDetailContent';
 import type { BlogPost } from '@/types/blog';
 import { Suspense } from 'react';
 
+export const revalidate = 60; // Revalidate dynamic info every 60 seconds
+
 async function getPost(slug: string): Promise<BlogPost | null> {
   try {
     const q = query(collection(db, 'blogs'), where('slug', '==', slug), where('status', '==', 'published'));

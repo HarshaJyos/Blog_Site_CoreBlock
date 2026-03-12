@@ -4,6 +4,8 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, query, doc, getDoc } from 'firebase/firestore';
 import type { BlogPost } from '@/types/blog';
 
+export const revalidate = 60; // Revalidate page every 60 seconds
+
 export const metadata: Metadata = {
   title: "CoreBlock — Writing about Code, Design, and AI",
   description: "An open journal by Hanish Jyosyabhatla exploring software engineering, AI, and digital craftsmanship in his own words.",

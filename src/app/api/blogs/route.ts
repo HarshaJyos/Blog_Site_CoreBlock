@@ -56,6 +56,8 @@ async function syncPolls(content: string) {
 }
 
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/blogs — list blog posts
 export async function GET(request: NextRequest) {
   try {

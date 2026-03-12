@@ -192,7 +192,7 @@ export default function HomeContent({ initialPosts }: HomeContentProps) {
                                     </div>
                                 </div>
                             ))
-                        ) : (
+                        ) : recentPosts.length > 0 ? (
                             recentPosts.map((post, index) => (
                                 <Link key={post.id} href={`/blog/${post.slug}`} className="group block animate-slide-up" style={{ animationDelay: `${(index + 2) * 50}ms` }}>
                                     <article className="flex gap-0 sm:gap-4 p-4 rounded-2xl border border-zinc-300 bg-white hover:border-zinc-400 focus:ring-4 focus:ring-blue-100 transition-all hover:shadow-sm overflow-hidden">
@@ -242,6 +242,10 @@ export default function HomeContent({ initialPosts }: HomeContentProps) {
                                     </article>
                                 </Link>
                             ))
+                        ) : (
+                            <div className="py-12 px-6 border border-zinc-200/60 rounded-2xl bg-white text-center animate-fade-in">
+                                <p className="text-zinc-500 font-medium">No other recent posts yet. Check back later!</p>
+                            </div>
                         )}
                     </div>
                 </section>
