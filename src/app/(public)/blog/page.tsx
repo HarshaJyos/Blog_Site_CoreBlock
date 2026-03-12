@@ -5,8 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState, Suspense } from 'react';
 import { BLOG_CATEGORIES, type BlogPost } from '@/types/blog';
 
-export const revalidate = 60; // Revalidate dynamic info every 60 seconds
-
 function BlogListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
