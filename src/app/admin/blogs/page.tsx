@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { BlogPost } from '@/types/blog';
+import { db } from '@/lib/firebase';
+import { doc, deleteDoc } from 'firebase/firestore';
 
 export default function AdminBlogsList() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -27,11 +29,11 @@ export default function AdminBlogsList() {
     }
   }
 
-  async function handleDelete(slug: string) {
+  async function handleDelete(slug: string, id: string) {
     if (!confirm('Are you sure you want to delete this post?')) return;
     setDeleting(slug);
     try {
-      await fetch(`/api/blogs/${slug}`, { method: 'DELETE' });
+      await deleteDoc(doc(db, 'blogs', id));
       setPosts((prev) => prev.filter((p) => p.slug !== slug));
     } catch (err) {
       console.error('Failed to delete:', err);
@@ -146,7 +148,7 @@ export default function AdminBlogsList() {
                           </svg>
                         </Link>
                         <button
-                          onClick={() => handleDelete(post.slug)}
+                          onClick={() => handleDelete(post.slug, post.id)}
                           disabled={deleting === post.slug}
                           className="p-2 rounded-lg text-red-400 hover:text-red-700 hover:bg-red-50 transition-smooth disabled:opacity-50"
                           title="Delete"
