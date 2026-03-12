@@ -214,7 +214,7 @@ export default function BlogDetailContent({ initialPost }: BlogDetailContentProp
                 <article className="lg:col-span-9 animate-fade-in w-full">
                     {/* Header & Hero */}
                     {post.coverImage ? (
-                        <header className="mb-12 w-full">
+                        <header className="mb-5 w-full">
                             <div className="relative rounded-3xl overflow-hidden bg-zinc-900 aspect-[21/9] border border-zinc-200/50 shadow-sm group w-full min-w-full">
                                 <img src={post.coverImage} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" alt={post.title} />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -237,7 +237,7 @@ export default function BlogDetailContent({ initialPost }: BlogDetailContentProp
 
                     {/* Intro Text */}
                     {post.excerpt && (
-                        <p className="text-xl md:text-2xl text-zinc-600 leading-relaxed font-normal mb-16 border-l-4 border-zinc-950 pl-8 max-w-4xl">
+                        <p className="text-xl md:text-2xl text-zinc-600 leading-relaxed font-normal mb-4 border-l-4 border-zinc-950 pl-8 max-w-4xl">
                             {post.excerpt}
                         </p>
                     )}
