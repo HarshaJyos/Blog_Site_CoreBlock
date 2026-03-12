@@ -71,8 +71,7 @@ export async function GET(request: NextRequest) {
     if (status) {
       q = query(collection(db, 'blogs'), where('status', '==', status));
     } else {
-      // Default to published to satisfy security rules for unauthenticated requests
-      q = query(collection(db, 'blogs'), where('status', '==', 'published'));
+      q = query(collection(db, 'blogs')); // Fetch all and filter out 'trash' below
     }
 
     const snapshot = await getDocs(q);
@@ -87,6 +86,9 @@ export async function GET(request: NextRequest) {
 
     if (status) {
       blogs = blogs.filter(b => b.status === status);
+    } else {
+      // Hide trashed blogs by default
+      blogs = blogs.filter(b => b.status !== 'trash');
     }
     if (category && category !== 'All Topic' && category !== 'All') {
       blogs = blogs.filter(b => b.category === category);

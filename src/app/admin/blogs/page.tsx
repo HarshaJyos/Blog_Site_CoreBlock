@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { BlogPost } from '@/types/blog';
 import { db } from '@/lib/firebase';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 
 export default function AdminBlogsList() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -30,10 +30,13 @@ export default function AdminBlogsList() {
   }
 
   async function handleDelete(slug: string, id: string) {
-    if (!confirm('Are you sure you want to delete this post?')) return;
+    if (!confirm('Are you sure you want to move this post to trash?')) return;
     setDeleting(slug);
     try {
-      await deleteDoc(doc(db, 'blogs', id));
+      await updateDoc(doc(db, 'blogs', id), {
+        status: 'trash',
+        updatedAt: Date.now(),
+      });
       setPosts((prev) => prev.filter((p) => p.slug !== slug));
     } catch (err) {
       console.error('Failed to delete:', err);
@@ -104,7 +107,9 @@ export default function AdminBlogsList() {
                       <span
                         className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${post.status === 'published'
                           ? 'bg-green-50 text-green-700'
-                          : 'bg-amber-50 text-amber-700'
+                          : post.status === 'trash'
+                            ? 'bg-red-50 text-red-700'
+                            : 'bg-amber-50 text-amber-700'
                           }`}
                       >
                         {post.status}

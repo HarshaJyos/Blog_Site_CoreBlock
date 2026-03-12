@@ -18,7 +18,7 @@ export interface BlogPost {
   author: string;
   category: string;
   tags: string[];
-  status: 'draft' | 'published';
+  status: 'draft' | 'published' | 'trash';
   seo: BlogSEO;
   createdAt: number; // Unix timestamp ms
   updatedAt: number;
@@ -37,7 +37,7 @@ export interface BlogPostFormData {
   author: string;
   category: string;
   tags: string[];
-  status: 'draft' | 'published';
+  status: 'draft' | 'published' | 'trash';
   seo: BlogSEO;
   publishedAt?: string;
 }
