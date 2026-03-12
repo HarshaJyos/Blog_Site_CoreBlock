@@ -23,12 +23,7 @@ function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-6 h-6 rounded bg-zinc-950 flex items-center justify-center transition-transform group-hover:scale-105">
-              <span className="text-white font-bold text-xs">C</span>
-            </div>
-            <span className="text-lg font-semibold text-zinc-950 tracking-tight">
-              CoreBlock
-            </span>
+            <img src="/logo.png" alt="CoreBlock" className="h-8 w-auto transition-transform group-hover:scale-105" />
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
