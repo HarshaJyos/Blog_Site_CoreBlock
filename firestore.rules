@@ -43,6 +43,12 @@ service cloud.firestore {
       }
     }
     
+    // Featured collection (for the featured blog post ID)
+    match /featured/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
     // Security fallback
     match /{document=**} {
       allow read, write: if false;

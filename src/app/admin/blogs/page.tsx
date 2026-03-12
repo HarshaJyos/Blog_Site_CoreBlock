@@ -5,17 +5,31 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { BlogPost } from '@/types/blog';
 import { db } from '@/lib/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function AdminBlogsList() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [featuredId, setFeaturedId] = useState<string | null>(null);
+  const [featuring, setFeaturing] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     fetchPosts();
+    fetchFeatured();
   }, []);
+
+  async function fetchFeatured() {
+    try {
+      const snap = await getDoc(doc(db, 'featured', 'current'));
+      if (snap.exists()) {
+        setFeaturedId(snap.data().blogId);
+      }
+    } catch(err) {
+      console.error('Failed to fetch featured post', err);
+    }
+  }
 
   async function fetchPosts() {
     try {
@@ -42,6 +56,21 @@ export default function AdminBlogsList() {
       console.error('Failed to delete:', err);
     } finally {
       setDeleting(null);
+    }
+  }
+
+  async function handleFeature(id: string) {
+    setFeaturing(id);
+    try {
+      await setDoc(doc(db, 'featured', 'current'), {
+        blogId: id,
+        updatedAt: Date.now()
+      });
+      setFeaturedId(id);
+    } catch (err) {
+      console.error('Failed to set featured:', err);
+    } finally {
+      setFeaturing(null);
     }
   }
 
@@ -132,6 +161,16 @@ export default function AdminBlogsList() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleFeature(post.id)}
+                          disabled={featuring === post.id}
+                          className={`p-2 rounded-lg transition-smooth ${featuredId === post.id ? 'text-amber-500 bg-amber-50 hover:bg-amber-100' : 'text-zinc-400 hover:text-amber-500 hover:bg-zinc-100'}`}
+                          title={featuredId === post.id ? "Currently Featured" : "Mark as Featured"}
+                        >
+                          <svg className="w-4 h-4" fill={featuredId === post.id ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                          </svg>
+                        </button>
                         <Link
                           href={`/blog/${post.slug}`}
                           target="_blank"

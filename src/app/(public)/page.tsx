@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import HomeContent from '@/components/HomeContent';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query } from 'firebase/firestore';
+import { collection, getDocs, query, doc, getDoc } from 'firebase/firestore';
 import type { BlogPost } from '@/types/blog';
 
 export const metadata: Metadata = {
@@ -27,6 +27,24 @@ async function getInitialPosts() {
     // Filter and Sort like the API does
     blogs = blogs.filter(b => b.status === 'published');
     blogs.sort((a, b) => (b.publishedAt || b.createdAt) - (a.publishedAt || a.createdAt));
+
+    let featuredPost: BlogPost | null = null;
+    try {
+      const featuredSnap = await getDoc(doc(db, 'featured', 'current'));
+      if (featuredSnap.exists()) {
+        const featuredId = featuredSnap.data().blogId;
+        const matchingIndex = blogs.findIndex(b => b.id === featuredId);
+        if (matchingIndex !== -1) {
+          featuredPost = blogs.splice(matchingIndex, 1)[0];
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching featured post:', err);
+    }
+
+    if (featuredPost) {
+      return [featuredPost, ...blogs.slice(0, 5)];
+    }
 
     return blogs.slice(0, 6);
   } catch (err) {
