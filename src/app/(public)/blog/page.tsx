@@ -88,12 +88,12 @@ function BlogListingContent() {
   return (
     <div className={`animate-fade-in bg-white min-h-screen ${isFilterOpen ? 'overflow-hidden' : ''}`}>
       {/* Header */}
-      <section className="pt-24 pb-12 md:pt-32 md:pb-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-zinc-200/50">
+      <section className="pt-5 pb-5 md:pt-5 md:pb-5 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-zinc-200/50">
         <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-5xl font-semibold text-zinc-950 tracking-tight leading-tight mb-6 animate-slide-up">
+          <h1 className="text-4xl md:text-5xl font-semibold text-zinc-950 tracking-tight leading-tight mb-2 animate-slide-up">
             Journal Archive
           </h1>
-          <p className="text-lg text-zinc-500 font-normal leading-relaxed mb-10 animate-slide-up" style={{ animationDelay: '100ms' }}>
+          <p className="text-lg text-zinc-500 font-normal leading-relaxed mb-5 animate-slide-up" style={{ animationDelay: '100ms' }}>
             Thoughts, tutorials, and insights on software engineering and design.
           </p>
 
@@ -207,7 +207,7 @@ function BlogListingContent() {
       </div>
 
       {/* Posts Grid */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {loading ? (
           <div className="flex flex-col gap-6">
             {[...Array(5)].map((_, i) => (
