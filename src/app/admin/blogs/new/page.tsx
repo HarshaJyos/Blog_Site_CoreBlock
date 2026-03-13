@@ -127,7 +127,7 @@ export default function NewBlogPage() {
         try {
           const contentJson = JSON.parse(content);
           const polls: any[] = [];
-      
+
           const findPolls = (nodes: any[]) => {
             for (const node of nodes) {
               if (node.type === 'poll') {
@@ -136,15 +136,15 @@ export default function NewBlogPage() {
               if (node.children) findPolls(node.children);
             }
           };
-      
+
           if (contentJson.root && contentJson.root.children) {
             findPolls(contentJson.root.children);
           }
-      
+
           for (const poll of polls) {
             const pollRef = doc(db, 'polls', poll.pollId);
             const pollSnap = await getDoc(pollRef);
-      
+
             if (!pollSnap.exists()) {
               console.log('SYNC: Creating missing poll in Firestore:', poll.pollId);
               await setDoc(pollRef, {
@@ -192,7 +192,7 @@ export default function NewBlogPage() {
       };
 
       await addDoc(collection(db, 'blogs'), blogData);
-      
+
       if (editorContent) {
         await syncPolls(editorContent);
       }
