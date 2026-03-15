@@ -143,7 +143,7 @@ export default function EditBlogPage() {
         try {
           const contentJson = JSON.parse(content);
           const polls: any[] = [];
-      
+
           const findPolls = (nodes: any[]) => {
             for (const node of nodes) {
               if (node.type === 'poll') {
@@ -152,15 +152,15 @@ export default function EditBlogPage() {
               if (node.children) findPolls(node.children);
             }
           };
-      
+
           if (contentJson.root && contentJson.root.children) {
             findPolls(contentJson.root.children);
           }
-      
+
           for (const poll of polls) {
             const pollRef = doc(db, 'polls', poll.pollId);
             const pollSnap = await getDoc(pollRef);
-      
+
             if (!pollSnap.exists()) {
               console.log('SYNC: Creating missing poll in Firestore:', poll.pollId);
               await setDoc(pollRef, {
@@ -209,7 +209,7 @@ export default function EditBlogPage() {
       }
 
       await updateDoc(doc(db, 'blogs', blogId), updateData);
-      
+
       if (editorContent) {
         await syncPolls(editorContent);
       }
@@ -428,7 +428,7 @@ export default function EditBlogPage() {
               <h3 className="text-sm font-semibold text-zinc-700 mb-3">Search Preview</h3>
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <p className="text-blue-700 text-lg font-medium truncate">{formData.seo.metaTitle || formData.title || 'Page Title'}</p>
-                <p className="text-green-700 text-sm truncate mt-0.5">coreblock.com/blog/{formData.slug || 'post-url'}</p>
+                <p className="text-green-700 text-sm truncate mt-0.5">coreblock.in/blog/{formData.slug || 'post-url'}</p>
                 <p className="text-slate-600 text-sm mt-1 line-clamp-2">{formData.seo.metaDescription || formData.excerpt || 'Meta description...'}</p>
               </div>
             </div>

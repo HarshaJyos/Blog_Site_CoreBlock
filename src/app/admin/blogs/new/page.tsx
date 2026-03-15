@@ -468,7 +468,7 @@ export default function NewBlogPage() {
                 onChange={(e) =>
                   setFormData((p) => ({ ...p, seo: { ...p.seo, canonicalUrl: e.target.value } }))
                 }
-                placeholder="https://coreblock.com/blog/..."
+                placeholder="https://coreblock.in/blog/..."
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-transparent text-zinc-800 placeholder-slate-300 transition-smooth"
               />
             </div>
@@ -567,7 +567,7 @@ export default function NewBlogPage() {
                   {formData.seo.metaTitle || formData.title || 'Page Title'}
                 </p>
                 <p className="text-green-700 text-sm truncate mt-0.5">
-                  coreblock.com/blog/{formData.slug || 'post-url'}
+                  coreblock.in/blog/{formData.slug || 'post-url'}
                 </p>
                 <p className="text-slate-600 text-sm mt-1 line-clamp-2">
                   {formData.seo.metaDescription || formData.excerpt || 'Meta description will appear here...'}

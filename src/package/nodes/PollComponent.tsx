@@ -5,6 +5,8 @@ import './PollNode.css';
 
 import { useAuth } from '@/components/AuthContext';
 import { LoginModal } from '@/components/LoginModal';
+import { db } from '@/lib/firebase';
+import { doc, getDoc, setDoc, updateDoc, increment, collection, serverTimestamp } from 'firebase/firestore';
 
 import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -181,20 +183,35 @@ export default function PollComponent({
 
     // Fetch live results
     if (!editable) {
-      const url = user?.uid ? `/api/polls/${pollId}?userId=${user.uid}` : `/api/polls/${pollId}`;
-      fetch(url)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data && data.options) {
-            setPollResults(data);
-            if (data.userVote) {
-              setVotedUid(data.userVote);
-            } else {
-              setVotedUid(null); // Clear vote if user hasn't voted or logged out
-            }
+      const fetchPollData = async () => {
+        try {
+          const docRef = doc(db, 'polls', pollId);
+          const docSnap = await getDoc(docRef);
+          
+          let userVotedOption = null;
+          if (user && docSnap.exists()) {
+              const voteDocRef = doc(collection(db, 'polls', pollId, 'votes'), user.uid);
+              const voteSnap = await getDoc(voteDocRef);
+              if (voteSnap.exists()) {
+                  userVotedOption = voteSnap.data().optionUid;
+              }
           }
-        })
-        .catch((err) => console.error('Failed to fetch poll results:', err));
+
+          if (docSnap.exists()) {
+              setPollResults({
+                  totalVotes: docSnap.data().totalVotes,
+                  options: docSnap.data().options || {}
+              });
+              setVotedUid(userVotedOption);
+          } else {
+              setPollResults({ totalVotes: 0, options: {} });
+              setVotedUid(null);
+          }
+        } catch (err) {
+          console.error('Failed to fetch poll results:', err);
+        }
+      };
+      fetchPollData();
     }
   }, [pollId, editable, createdAt, user]);
 
@@ -213,24 +230,49 @@ export default function PollComponent({
 
     try {
       setIsSubmitting(true);
-      const response = await fetch(`/api/polls/${pollId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'vote', optionUid, createdAt, userId: user.uid }),
+      
+      const pollRef = doc(db, 'polls', pollId);
+      const pollSnap = await getDoc(pollRef);
+      
+      const voteDocRef = doc(collection(db, 'polls', pollId, 'votes'), user.uid);
+      const voteSnap = await getDoc(voteDocRef);
+
+      if (voteSnap.exists()) {
+        setVotedUid(voteSnap.data().optionUid);
+        return;
+      }
+
+      if (!pollSnap.exists()) {
+         await setDoc(pollRef, {
+             totalVotes: 1,
+             options: { [optionUid]: 1 },
+             createdAt: createdAt || Date.now(),
+             lastVoteAt: serverTimestamp(),
+         });
+      } else {
+         await updateDoc(pollRef, {
+             totalVotes: increment(1),
+             [`options.${optionUid}`]: increment(1),
+             lastVoteAt: serverTimestamp(),
+         });
+      }
+
+      await setDoc(voteDocRef, {
+          optionUid,
+          userId: user.uid,
+          pollId: pollId,
+          timestamp: serverTimestamp(),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setPollResults(data);
-        setVotedUid(optionUid);
-      } else if (response.status === 403) {
-        const data = await response.json();
-        if (data.expired) setIsExpired(true);
-        if (data.error === 'User has already voted') {
-          // If server returned their actual vote, use it, otherwise fallback to the option they clicked
-          setVotedUid(data.userVote || optionUid);
-        }
+      const updatedSnap = await getDoc(pollRef);
+      if (updatedSnap.exists()) {
+        setPollResults({
+          totalVotes: updatedSnap.data().totalVotes,
+          options: updatedSnap.data().options || {}
+        });
       }
+      setVotedUid(optionUid);
+      
     } catch (err) {
       console.error('Failed to submit vote:', err);
     } finally {

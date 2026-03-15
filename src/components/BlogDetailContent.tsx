@@ -6,6 +6,8 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/components/AuthContext';
 import { LoginModal } from '@/components/LoginModal';
+import { db } from '@/lib/firebase';
+import { doc, getDoc, setDoc, deleteDoc, updateDoc, increment, collection, query, where, getDocs } from 'firebase/firestore';
 import type { BlogPost } from '@/types/blog';
 
 const ReadOnlyEditor = dynamic(() => import('@/components/ReadOnlyEditor'), {
@@ -53,16 +55,14 @@ export default function BlogDetailContent({ initialPost }: BlogDetailContentProp
     // Check Like Status
     useEffect(() => {
         async function checkLikeStatus() {
-            if (!user || !params.slug) {
+            if (!user || !post.id) {
                 setIsLiked(false);
                 return;
             }
             try {
-                const res = await fetch(`/api/blogs/${params.slug}/like?userId=${user.uid}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setIsLiked(data.liked);
-                }
+                const likeRef = doc(db, 'blogs', post.id, 'likes', user.uid);
+                const likeSnap = await getDoc(likeRef);
+                setIsLiked(likeSnap.exists());
             } catch (err) {
                 console.error('Failed to check like status', err);
             }
@@ -91,7 +91,7 @@ export default function BlogDetailContent({ initialPost }: BlogDetailContentProp
     }, [sidebarPage]);
 
     const handleToggleLike = async () => {
-        if (!user) {
+        if (!user || !post.id) {
             setShowLoginModal(true);
             return;
         }
@@ -100,22 +100,37 @@ export default function BlogDetailContent({ initialPost }: BlogDetailContentProp
         try {
             setIsLikeLoading(true);
             const action = isLiked ? 'unlike' : 'like';
+            const previousIsLiked = isLiked;
+            
+            // Optimistic update
             setIsLiked(!isLiked);
             setLikeCount(prev => action === 'like' ? prev + 1 : Math.max(0, prev - 1));
 
-            const res = await fetch(`/api/blogs/${params.slug}/like`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: user.uid, action })
-            });
+            const blogRef = doc(db, 'blogs', post.id);
+            const likeRef = doc(db, 'blogs', post.id, 'likes', user.uid);
 
-            if (!res.ok) {
-                setIsLiked(isLiked);
-                setLikeCount(prev => action === 'like' ? prev - 1 : prev + 1);
-                throw new Error('Failed to toggle like');
+            if (action === 'like') {
+                await setDoc(likeRef, {
+                    createdAt: Date.now(),
+                    userId: user.uid,
+                    blogId: post.id,
+                    slug: post.slug
+                });
+                await updateDoc(blogRef, { likes: increment(1) });
+            } else {
+                await deleteDoc(likeRef);
+                // Prevent negative likes
+                const blogSnap = await getDoc(blogRef);
+                if (blogSnap.exists()) {
+                    const currentLikes = blogSnap.data().likes || 0;
+                    await updateDoc(blogRef, { likes: currentLikes > 0 ? increment(-1) : 0 });
+                }
             }
         } catch (err) {
-            console.error(err);
+            console.error('Failed to toggle like:', err);
+            // Revert on failure
+            setIsLiked(isLiked ? false : true); // original state
+            setLikeCount(post.likes || 0);
         } finally {
             setIsLikeLoading(false);
         }

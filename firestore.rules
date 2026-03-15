@@ -12,8 +12,12 @@ service cloud.firestore {
     match /blogs/{blogId} {
       // Anyone can read (to support API routes acting as anonymous clients)
       allow read: if true;
-      // Only authenticated users (admins) can write
-      allow write: if isAdmin();
+      allow create, delete: if isAdmin();
+      // Regular authenticated users can only update the 'likes' field
+      allow update: if isAdmin() || (
+        request.auth != null &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
+      );
       
       // Likes subcollection
       match /likes/{userId} {
@@ -35,13 +39,17 @@ service cloud.firestore {
     match /polls/{pollId} {
       // Anyone can view poll results
       allow read: if true;
-      // Anyone can vote (updates poll document)
-      allow write: if true;
+      allow create, delete: if isAdmin();
+      // Authenticated users can vote by incrementing vote counts
+      allow update: if isAdmin() || (
+        request.auth != null &&
+        request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalVotes', 'options', 'lastVoteAt'])
+      );
       
       // Votes subcollection
       match /votes/{userId} {
-        // Anyone can vote once
-        allow create: if true;
+        // Users can only vote themselves
+        allow create, update: if request.auth != null && request.auth.uid == userId;
         // Anyone can check if they've voted
         allow get: if true;
         allow list: if isAdmin();

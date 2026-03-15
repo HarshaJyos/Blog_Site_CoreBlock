@@ -3,7 +3,7 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://coreblock.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://coreblock.in';
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
